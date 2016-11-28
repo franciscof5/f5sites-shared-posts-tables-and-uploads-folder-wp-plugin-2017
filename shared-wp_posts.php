@@ -9,14 +9,53 @@
  * License: Apache 2.0
  */
 
-$settings = {
-	"post_table":"f5sites_posts",
-	"postmeta_table":"f5sites_postmeta"
-}
+#$settings = {
+#	"post_table":"f5sites_posts",
+#	"postmeta_table":"f5sites_postmeta"
+#}
 
 function use_shared_wp_posts($query) {
+	$ty = $query->query["post_type"];
+	#var_dump("TYPE: ".$ty. " ispage: ".is_page());
+	
+	global $wpdb;
+	$wpdb->posts_original = $wpdb->posts;
+	$wpdb->postmeta_original = $wpdb->postmeta;
+	$wpdb->categories_original = $wpdb->categories;
+	$wpdb->term_post2cat_original = $wpdb->term_post2cat;
+	$wpdb->terms_original = $wpdb->terms;
+	$wpdb->term_relationships_original = $wpdb->term_relationships;
+	$wpdb->term_taxonomy_original = $wpdb->term_taxonomy;
+	$wpdb->taxonomy_original = $wpdb->taxonomy;
+	$wpdb->termmeta_original = $wpdb->termmeta;
+	
+	if($ty==NULL && !is_page()) {
+		$wpdb->posts="f5sites_posts";
+		$wpdb->postmeta="f5sites_postmeta";
+
+		#$wpdb->categories="f5sites_categories";
+		#$wpdb->term_post2cat="f5sites_post2cat";
+
+		$wpdb->terms="f5sites_terms";
+		$wpdb->term_relationships="f5sites_term_relationships";
+		$wpdb->term_taxonomy="f5sites_term_taxonomy";
+		$wpdb->taxonomy="f5sites_taxonomy";
+		$wpdb->termmeta="f5sites_termmeta";
+	} else {
+		$wpdb->posts=$wpdb->posts_original;
+		$wpdb->postmeta=$wpdb->postmeta_original;
+		#$wpdb->categories = $wpdb->categories_original;
+		#$wpdb->term_post2cat = $wpdb->term_post2cat_original;
+		$wpdb->terms = $wpdb->terms_original;
+		$wpdb->term_relationships = $wpdb->term_relationships_original;
+		$wpdb->term_taxonomy = $wpdb->term_taxonomy_original;
+		$wpdb->taxonomy = $wpdb->taxonomy_original;
+		$wpdb->termmeta = $wpdb->termmeta_original;
+	}
+	#global $wp_post_types;
+	#var_dump($wp_post_types);
 	#global $query;
-	//global $wp_query;
+	#global $wp_query;
 	#if(!is_page()) {
 	//if ( is_page( 'post' ) ) {
 	#var_dump(
@@ -34,17 +73,28 @@ function use_shared_wp_posts($query) {
 	#$wpdb->comments="f5sites_comments";
 	#$wpdb->commentmeta="f5sites_commentmeta";
 	
-	#echo "<pre>";
+	#$ty = $query->queried_object->post_type;
+	/*
+	$ty = $query->query["post_type"];
+	echo "<pre>";
+	print_r($query);
+	print_r("wp_query: ".$wp_query);
+	print_r("TYPEEEEE ".$ty);
+	print_r("MAIN: ".$query->is_main_query());
+	#print_r($query->is_page);
+	#print_r($query->queried_object);
 	#print_r($query->queried_object->post_type);
-	#echo "</pre>";
-	$ty = $query->queried_object->post_type;
+	echo "</pre>";
+	
 	#echo $ty!="page";
-	if ((isset($ty) && $ty!="page") || $query->is_main_query()) {
+	if ($query->is_main_query()) {
 	#if($query->is_main_query()) {
-		if(!is_admin()) {
+		if(!is_admin() && !is_page() && $ty!="page") {
 		#if(!is_page()) {
+			
+			#$wpdb->prefix="f5sites_";
+
 			global $wpdb;
-		
 			$wpdb->posts="f5sites_posts";
 			$wpdb->postmeta="f5sites_postmeta";
 
@@ -77,7 +127,7 @@ function use_shared_wp_posts($query) {
 		#$wpdb->term_taxonomy;
 		#var_dump($wpdb);die;	
 	#}
-		
+		*/
 	//}
 	#}
 	# is_post_type_archive('movie')
@@ -85,5 +135,22 @@ function use_shared_wp_posts($query) {
 }
 #add_filter('query', 'use_f5sites_posts');
 add_action( 'pre_get_posts', 'use_shared_wp_posts' );
+
+
+#rename_function('have_posts', 'real_feof');
+#override_function('have_posts', '$handle', 'return true;');
+
+#namespace MyNamespace {
+#        function have_posts($object) 
+#        {
+#            echo "<pre>", \print_r($object, true), "</pre>"; 
+#        }
+#}
+
+#override_function('have_posts', '$a,$b', 'echo "DOING TEST"; return $a * $b;');
+
+function get_posts3() {
+	die;
+}
 
 ?>
