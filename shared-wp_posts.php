@@ -9,14 +9,22 @@
  * License: Apache 2.0
  */
 
+
 #$settings = {
 #	"post_table":"f5sites_posts",
 #	"postmeta_table":"f5sites_postmeta"
 #}
 
-function use_shared_wp_posts($query) {
+/*function use_shared_wp_posts($query) {
 	$ty = $query->query["post_type"];
-	#var_dump("TYPE: ".$ty. " ispage: ".is_page());
+
+	#var_dump(" qqqqq ");
+	#var_dump($query);
+	$isp = is_page();
+	$ism = is_main_query();
+	$issin = is_single();
+	#$is_loop = is_loop();
+	#var_dump("type: ".$ty. ", ispage: ".$isp . ", main_query: ".$ism.", issin:".$issin);
 	
 	global $wpdb;
 	$wpdb->posts_original = $wpdb->posts;
@@ -29,29 +37,43 @@ function use_shared_wp_posts($query) {
 	$wpdb->taxonomy_original = $wpdb->taxonomy;
 	$wpdb->termmeta_original = $wpdb->termmeta;
 	
-	if($ty==NULL && !is_page()) {
+	#if(!isset($isp))$isp=false;
+	#if($ty==NULL || $ty=="" || $ty=="nav_menu_item") {
 		$wpdb->posts="f5sites_posts";
 		$wpdb->postmeta="f5sites_postmeta";
 
-		#$wpdb->categories="f5sites_categories";
-		#$wpdb->term_post2cat="f5sites_post2cat";
+		$wpdb->categories="f5sites_categories";
+		$wpdb->term_post2cat="f5sites_post2cat";
 
 		$wpdb->terms="f5sites_terms";
 		$wpdb->term_relationships="f5sites_term_relationships";
 		$wpdb->term_taxonomy="f5sites_term_taxonomy";
 		$wpdb->taxonomy="f5sites_taxonomy";
 		$wpdb->termmeta="f5sites_termmeta";
-	} else {
+	#} else {
+		/*$wpdb->posts=$wpdb->posts_original;
+		$wpdb->postmeta=$wpdb->postmeta_original;
+		$wpdb->categories = $wpdb->categories_original;
+		$wpdb->term_post2cat = $wpdb->term_post2cat_original;
+		$wpdb->terms = $wpdb->terms_original;
+		$wpdb->term_relationships = $wpdb->term_relationships_original;
+		$wpdb->term_taxonomy = $wpdb->term_taxonomy_original;
+		$wpdb->taxonomy = $wpdb->taxonomy_original;
+		$wpdb->termmeta = $wpdb->termmeta_original;*/
+	#}
+	/*if(!isset($ty)) {
+		#echo "NOT: ";
+		#var_dump($query);
 		$wpdb->posts=$wpdb->posts_original;
 		$wpdb->postmeta=$wpdb->postmeta_original;
-		#$wpdb->categories = $wpdb->categories_original;
-		#$wpdb->term_post2cat = $wpdb->term_post2cat_original;
+		$wpdb->categories = $wpdb->categories_original;
+		$wpdb->term_post2cat = $wpdb->term_post2cat_original;
 		$wpdb->terms = $wpdb->terms_original;
 		$wpdb->term_relationships = $wpdb->term_relationships_original;
 		$wpdb->term_taxonomy = $wpdb->term_taxonomy_original;
 		$wpdb->taxonomy = $wpdb->taxonomy_original;
 		$wpdb->termmeta = $wpdb->termmeta_original;
-	}
+	}*/
 	#global $wp_post_types;
 	#var_dump($wp_post_types);
 	#global $query;
@@ -127,16 +149,76 @@ function use_shared_wp_posts($query) {
 		#$wpdb->term_taxonomy;
 		#var_dump($wpdb);die;	
 	#}
-		*/
+		
 	//}
 	#}
 	# is_post_type_archive('movie')
 	
-}
+}*/
 #add_filter('query', 'use_f5sites_posts');
-add_action( 'pre_get_posts', 'use_shared_wp_posts' );
+#add_action( 'plugins_loaded', 'shared_for_real' );
+add_action( 'pre_get_posts', 'shared_for_real' );
+#add_action( 'parse_site_query', 'shared_for_real' );
 
+#add_action( "init", "shared_for_real" );
+#add_action("admin-init", "shared_for_real");
+#shared_for_real();
+function shared_for_real($query) {
+	#var_dump($query);
 
+	global $wpdb;
+	#die;
+	/*$wpdb->posts_original = $wpdb->posts;
+	$wpdb->postmeta_original = $wpdb->postmeta;
+	$wpdb->categories_original = $wpdb->categories;
+	$wpdb->term_post2cat_original = $wpdb->term_post2cat;
+	$wpdb->terms_original = $wpdb->terms;
+	$wpdb->term_relationships_original = $wpdb->term_relationships;
+	$wpdb->term_taxonomy_original = $wpdb->term_taxonomy;
+	$wpdb->taxonomy_original = $wpdb->taxonomy;
+	$wpdb->termmeta_original = $wpdb->termmeta;*/
+
+	#if(!isset($isp))$isp=false;
+	#if($ty==NULL || $ty=="" || $ty=="nav_menu_item") {
+	#'links', 'postmeta', 'terms', 'term_taxonomy', 'term_relationships', 'termmeta', 'commentmeta' );
+	$wpdb->comments="f5sites_comments";
+	$wpdb->commentmeta="f5sites_commentmeta";
+	$wpdb->links="f5sites_links";
+	$wpdb->posts="f5sites_posts";
+	$wpdb->postmeta="f5sites_postmeta";
+
+	#$wpdb->categories="f5sites_categories";
+	$wpdb->term_post2cat="f5sites_post2cat";
+
+	$wpdb->terms="f5sites_terms";
+	$wpdb->term_relationships="f5sites_term_relationships";
+	$wpdb->term_taxonomy="f5sites_term_taxonomy";
+	$wpdb->taxonomy="f5sites_taxonomy";
+	$wpdb->termmeta="f5sites_termmeta";
+	
+	if ( $query->is_home ) {
+		$domain=$_SERVER['HTTP_HOST'];
+		$idObj = get_category_by_slug($domain); 
+		$id = $idObj->term_id;
+		
+		$type=$query->query["post_type"];
+		
+		if($type==NULL)
+		$query->set( 'cat', $id );
+	}
+	#return $query;
+	#$args = array( 
+
+	#'category__not_in' => 2 ,
+
+	#'category__in' => 4 
+
+	#);
+	#global $wp_query;
+	#return $query = new WP_Query( $args );
+	#var_dump($query);
+	#die;
+}
 #rename_function('have_posts', 'real_feof');
 #override_function('have_posts', '$handle', 'return true;');
 
@@ -149,8 +231,9 @@ add_action( 'pre_get_posts', 'use_shared_wp_posts' );
 
 #override_function('have_posts', '$a,$b', 'echo "DOING TEST"; return $a * $b;');
 
-function get_posts3() {
-	die;
-}
+#function get_posts3() {
+#	die;
+#}
 
 ?>
+
