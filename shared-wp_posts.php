@@ -61,7 +61,7 @@ function shared_for_real($query) {
 	if(!$is_defined_post_type || $type=="product") { # && !is_pdf_catalog
 		if(gettype($query)!="string" && gettype($query)!="integer") {
 			if(is_woocommerce() || $is_pdf_catalog) { # || $is_pdf_catalog
-				if(!$is_pdf_catalog_all)
+				if(!$is_pdf_catalog_all and !is_admin())
 				$query->set( 'product_cat', $domain );
 			} else {
 				if(isset($id))
