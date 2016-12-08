@@ -20,7 +20,13 @@
 
 add_action( 'pre_get_posts', 'shared_for_real' );
 
+#add_action( 'woocommerce_loaded', 'shared_for_real' );
 add_action( 'plugins_loaded', 'shared_for_real' );
+
+#add_action( 'parse_site_query', 'shared_for_real' );
+add_action( 'switch_blog', 'shared_for_real' );
+#add_action( 'wp_loaded', 'shared_for_real' );
+
 
 #add_action( 'parse_site_query', 'shared_for_real' );
 #add_action( "init", "shared_for_real" );
@@ -28,6 +34,8 @@ add_action( 'plugins_loaded', 'shared_for_real' );
 #shared_for_real();
 
 function shared_for_real($query) {
+	set_databases();
+	#
 	if(isset($query->query["post_type"]))
 	$type = $query->query["post_type"];
 	#
@@ -51,7 +59,7 @@ function shared_for_real($query) {
 	#var_dump("tyyyyype: ".$type. " is_shop: ".is_shop(). "domain: ".$domain. " is_woocommerce(): ".is_woocommerce(). "?pdfcat: ".$is_pdf_catalog. " gettype: ".gettype($query));
 	#var_dump($query); #&& !is_pdf_catalog
 	if(!$is_defined_post_type || $type=="product") { # && !is_pdf_catalog
-		if(gettype($query)!="string") {
+		if(gettype($query)!="string" && gettype($query)!="integer") {
 			if(is_woocommerce() || $is_pdf_catalog) { # || $is_pdf_catalog
 				if(!$is_pdf_catalog_all)
 				$query->set( 'product_cat', $domain );
@@ -62,6 +70,22 @@ function shared_for_real($query) {
 		}
 	}
 	
+	
+
+	#if ( $query->is_home ) {
+	#product, shop_order, shop_coupon
+	
+		
+		
+		#woocommerce
+		#$type=$query->query["post_type"];
+		#if(!isset($type))
+		#if($type==NULL)
+
+	#}
+}
+
+function set_databases() {
 	global $wpdb;
 	
 	$wpdb->posts="f5sites_posts";
@@ -78,18 +102,6 @@ function shared_for_real($query) {
 	
 	$wpdb->categories="f5sites_categories";
 	$wpdb->term_post2cat="f5sites_post2cat";
-
-	#if ( $query->is_home ) {
-	#product, shop_order, shop_coupon
-	
-		
-		
-		#woocommerce
-		#$type=$query->query["post_type"];
-		#if(!isset($type))
-		#if($type==NULL)
-
-	#}
 }
 
 
