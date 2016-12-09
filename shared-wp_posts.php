@@ -61,7 +61,11 @@ function shared_for_real($query) {
 	#var_dump($query); #&& !is_pdf_catalog
 	if(!$is_defined_post_type || $type=="product") { # && !is_pdf_catalog
 		if(gettype($query)!="string" && gettype($query)!="integer") {
-			if(is_woocommerce() || $is_pdf_catalog) { # || $is_pdf_catalog
+			if(function_exists(is_woocommerce))
+			$is_woocommerce = is_woocommerce();
+			else
+			$is_woocommerce = false;
+			if($is_woocommerce || $is_pdf_catalog) { # || $is_pdf_catalog
 				if(!$is_pdf_catalog_all and !is_admin()) #not
 				$query->set( 'product_cat', $domain );
 			} else {
