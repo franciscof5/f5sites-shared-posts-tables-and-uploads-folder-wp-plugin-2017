@@ -20,11 +20,12 @@
 
 add_action( 'pre_get_posts', 'shared_for_real' );
 
-#add_action( 'woocommerce_loaded', 'shared_for_real' );
+#add_action( 'woocommerce_init', 'shared_for_real' );widgets_init
 add_action( 'plugins_loaded', 'shared_for_real' );
 
 #add_action( 'after_setup_theme', 'shared_for_real' );
 #add_action( 'parse_site_query', 'shared_for_real' );
+
 add_action( 'switch_blog', 'shared_for_real' );
 #add_action( 'wp_loaded', 'shared_for_real' );
 
@@ -61,13 +62,15 @@ function shared_for_real($query) {
 	#var_dump($query); #&& !is_pdf_catalog
 	if(!$is_defined_post_type || $type=="product") { # && !is_pdf_catalog
 		if(gettype($query)!="string" && gettype($query)!="integer") {
-			if(function_exists(is_woocommerce))
+			if(function_exists("is_woocommerce"))
+			#var_dump(is_woocommerce());die;
 			$is_woocommerce = is_woocommerce();
 			else
 			$is_woocommerce = false;
 			if($is_woocommerce || $is_pdf_catalog) { # || $is_pdf_catalog
 				if(!$is_pdf_catalog_all and !is_admin()) #not
 				$query->set( 'product_cat', $domain );
+				#echo $domain;die;
 			} else {
 				if(isset($id))
 				$query->set( 'cat', $id );
