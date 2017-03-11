@@ -1,7 +1,7 @@
 {
-	"name": "f5sites/shared-wp_posts",
-	"version": "0.1",
-	"description": "Shared wp posts for multiple wp install (in the same database), for use in fnetwork",
+	"name": "f5sites/shared-wordpress-tables-posts-and-taxonomies",
+	"version": "0.2",
+	"description": "Shared WordPress Tables Posts and Taxonomies for multiple wp install under the same database, by default wp only can share users. Made for use in fnetwork",
 	"type": "wordpress-plugin",
 	"authors": [
 		{

@@ -1,9 +1,9 @@
 <?php
 /**
- * Plugin Name: Shared wp_posts
- * Plugin URI: http://f5sites.com/shared-wp_posts
- * Description: Shared wp posts, for use in fnetwork. (not working in wp-mu, trick must be made, end of file))
- * Version: 0.1
+ * Plugin Name: Shared WordPress Tables Posts and Taxonomies
+ * Plugin URI: http://www.f5sites.com/shared-wordpress-tables-posts-and-taxonomies
+ * Description: Shared wp posts, for use in fnetwork. (woocommerce, pdfcatalog, wpmu ready)
+ * Version: 0.2
  * Author: Francisco Matelli Matulovic
  * Author URI: http://franciscomat.com
  * License: Apache 2.0
@@ -42,8 +42,9 @@ function shared_for_real($query) {
 	$type = $query->query["post_type"];
 	#
 	$domain=$_SERVER['HTTP_HOST'];
-	$idObj = get_category_by_slug($domain);
 	
+	$idObj = get_category_by_slug($domain);
+	#var_dump($idObj);die;
 	if(isset($idObj->term_id))
 	$id = $idObj->term_id;
 	#
