@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Shared WordPress Tables Posts and Taxonomies
  * Plugin URI: http://www.f5sites.com/shared-wordpress-tables-posts-and-taxonomies
- * Description: Shared wp posts, for use in fnetwork. (woocommerce, pdfcatalog, wpmu ready)
+ * Description: Shared WordPress Tables Posts and Taxonomies for multiple wp install under the same database, by default wp only can share users. Made for use in fnetwork. (woocommerce, pdfcatalog, wpmu ready)
  * Version: 0.2
  * Author: Francisco Matelli Matulovic
  * Author URI: http://franciscomat.com
