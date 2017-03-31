@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: Shared WordPress Tables Posts and Taxonomies
+ * Plugin Name: Shared WordPress Posts & Taxonomies Tables
  * Plugin URI: http://www.f5sites.com/shared-wordpress-tables-posts-and-taxonomies
  * Description: Shared WordPress Tables Posts and Taxonomies for multiple wp install under the same database, by default wp only can share users. Made for use in fnetwork. (woocommerce, pdfcatalog, wpmu ready)
  * Version: 0.2
