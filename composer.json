@@ -1,5 +1,5 @@
 {
-	"name": "f5sites/shared-wordpress-tables-posts-and-taxonomies+uploads-folder",
+	"name": "f5sites/shared-wordpress-tables-posts-and-taxonomies-uploads-folder",
 	"version": "0.2",
 	"description": "Shared WordPress Tables Posts and Taxonomies for multiple wp install under the same database, by default wp only can share users. Made for use in fnetwork",
 	"type": "wordpress-plugin",
