@@ -17,22 +17,24 @@
 
 #add_filter('query', 'use_1fnetwork_posts');
 #add_action( 'plugins_loaded', 'shared_for_real' );
+if(!is_network_admin()) {
+	add_action( 'pre_get_posts', 'shared_for_real2' );
 
-add_action( 'pre_get_posts', 'shared_for_real2' );
+	#add_action( 'woocommerce_init', 'shared_for_real' );widgets_init
+	add_action( 'plugins_loaded', 'shared_for_real2' );
 
-#add_action( 'woocommerce_init', 'shared_for_real' );widgets_init
-add_action( 'plugins_loaded', 'shared_for_real2' );
+	#add_action( 'after_setup_theme', 'shared_for_real' );
+	#add_action( 'parse_site_query', 'shared_for_real' );
 
-#add_action( 'after_setup_theme', 'shared_for_real' );
-#add_action( 'parse_site_query', 'shared_for_real' );
-
-add_action( 'switch_blog', 'shared_for_real2' );
-#add_action( 'wp_loaded', 'shared_for_real' );
+	add_action( 'switch_blog', 'shared_for_real2' );
+	#add_action( 'wp_loaded', 'shared_for_real' );
 
 
-#add_action( 'parse_site_query', 'shared_for_real' );
-#add_action( "init", "shared_for_real" );
-#add_action("admin-init", "shared_for_real");
+	#add_action( 'parse_site_query', 'shared_for_real' );
+	#add_action( "init", "shared_for_real" );
+	#add_action("admin-init", "shared_for_real");
+	add_filter( 'upload_dir', 'shared_upload_dir' );
+}
 #shared_for_real();
 
 function shared_for_real2($query) {
@@ -197,7 +199,7 @@ function shared_upload_dir( $dirs ) {
     return $dirs;
 }
 
-add_filter( 'upload_dir', 'shared_upload_dir' );
+
 
 /*
 NO NEED FOR TRICK ANYMORE
