@@ -86,12 +86,12 @@ function force_database_aditional_tables_share($query) {
 			else
 			$is_woocommerce = false;
 			if($is_woocommerce || $is_pdf_catalog) { # || $is_pdf_catalog
-				#if(!$is_pdf_catalog_all and !is_admin()) #not
-				#$query->set( 'product_cat', $current_server_name );
+				if(!$is_pdf_catalog_all and !is_admin()) #not
+				$query->set( 'product_cat', $current_server_name );
 				#echo $current_server_name;die;
 			} else {
-				#if(isset($current_server_name_shared_category_id))
-				#$query->set( 'cat', $current_server_name_shared_category_id );
+				if(isset($current_server_name_shared_category_id))
+				$query->set( 'cat', $current_server_name_shared_category_id );
 			}
 		}
 	}
@@ -149,9 +149,11 @@ function get_product_correct_url_by_id($postid=0) {
 	}
 }
 function redirect_to_correct_store_in_single_view () {
-	$purl = get_product_correct_url_by_id();
-	if($purl) {
-		wp_redirect($purl);
+	if(is_product()) {
+		$purl = get_product_correct_url_by_id();
+		if($purl) {
+			wp_redirect($purl);
+		}
 	}
 }
 function shared_upload_dir( $dirs ) {
