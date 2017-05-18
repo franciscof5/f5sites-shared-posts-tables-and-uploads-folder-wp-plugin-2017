@@ -79,15 +79,15 @@ function force_database_aditional_tables_share($query) {
 	#var_dump("tyyyyype: ".$type. " is_shop: ".is_shop(). "domain: ".$current_server_name. " is_woocommerce(): ".is_woocommerce(). "?pdfcat: ".$is_pdf_catalog. " gettype: ".gettype($query)." id:".$current_server_name_shared_category_id." category:".$category." is_categor:".$is_category);
 	
 	#the magic happens here
-	if(!$is_defined_post_type || $type=="product") { # && !is_pdf_catalog
+	if(!$is_defined_post_type || !$type=="product") { # && !is_pdf_catalog
 		if(gettype($query)!="string" && gettype($query)!="integer") {
 			if(function_exists("is_woocommerce"))
 			$is_woocommerce = is_woocommerce();
 			else
 			$is_woocommerce = false;
 			if($is_woocommerce || $is_pdf_catalog) { # || $is_pdf_catalog
-				if(!$is_pdf_catalog_all and !is_admin()) #not
-				$query->set( 'product_cat', $current_server_name );
+				#if(!$is_pdf_catalog_all and !is_admin()) #not
+				#$query->set( 'product_cat', $current_server_name );
 				#echo $current_server_name;die;
 			} else {
 				if(isset($current_server_name_shared_category_id))
@@ -103,7 +103,7 @@ function redirect_to_correct_store_in_shop_loop_title() {
 	if(!$purl) {
 		$purl = get_permalink();
 	} else {
-		echo "<marquee> ! FNETWORK ! </marquee>";
+		echo "<marquee> ! FNETWORK - LOJA PARCEIRA ! </marquee>";
 	}
 	echo '<a href="' . $purl . '" class="woocommerce-LoopProduct-link">';
 }
@@ -113,7 +113,7 @@ function redirect_to_correct_store_in_shop_loop_cart( $array, $int ) {
 	if(!$purl) {
 		return $array;
 	} else {
-		echo "Produto disponível somente em <br />";
+		echo "Produto disponível somente em: <br />";
 		$parse = parse_url($purl);
 		echo "<a href=$purl class='button product_type_booking add_to_cart_button'>".$parse['host']."</a>";
 	}
