@@ -32,6 +32,13 @@ if(!is_network_admin()) {
 
 	#Work in progress for buddypress integration, some problems might occur with sensitivy user data, like user_blogs table, making impossible to cross-share between multiple installs, but it is a good start point
 	#add_action( 'bp_loaded', 'buddypress_tables_share', 10, 2 );
+	add_filter( 'nav_menu_link_attributes', 'filter_function_name', 10, 3 );
+}
+
+function filter_function_name( $atts, $item, $args ) {
+    // Manipulate attributes
+    //var_dump($args);
+    return $atts;
 }
 
 #$settings = {#	"post_table":"1fnetwork_posts", "postmeta_table":"1fnetwork_postmeta"#}
