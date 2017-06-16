@@ -172,7 +172,7 @@ function force_database_aditional_tables_share($query) {
 function filter_posts_by_cat($queryReceived) {
 	global $wp_the_query;
 	//global $query;
-	//var_dump($query);
+	
 	//var_dump($wp_the_query);
 	//if($wp_the_query!=NULL)
 	//	$query = $wp_the_query;
@@ -191,7 +191,7 @@ function filter_posts_by_cat($queryReceived) {
 	} else {
 		$query = $queryReceived;
 	}
-		
+		//var_dump($query);
 		//$query = new WP_Query($query);
 	
 	//die;
@@ -222,6 +222,11 @@ function filter_posts_by_cat($queryReceived) {
 	$category = "";
 	if(isset($query->query["product_cat"]))
 		$category = $query->query["product_cat"];
+
+	$product_tag = "";
+	if(isset($query->query["product_tag"]))
+		$product_tag = $query->query["product_tag"];
+
 	//else
 	//	$category = "";
 	#$is_pdf_catalog = isset($_GET["pdfcat"]);
@@ -252,12 +257,19 @@ function filter_posts_by_cat($queryReceived) {
 
 			//if($type=="product")
 			
+			//if($product_tag!="")
+			//	$query->set( 'product_tag', $product_tag );	
+			//var_dump("<br /> type: ".$type. ", <br /> is_shop: ".is_shop(). ", <br /> domain: ".$current_server_name. ", <br /> is_woocommerce(): ".is_woocommerce(). ", <br /> pdfcat: ". ", <br /> gettype: ".gettype($query).", <br /> current_server_name_shared_category_id:".$current_server_name_shared_category_id.", <br /> category:".$category.", <br /> is_category:".$is_category.", <br /> typequery:".gettype($query)." <br />product_tag:".$product_tag);
 			
 			if($category!="") {
+				
 				//$query->set( 'cat', $current_server_name_shared_category_id );
 				//$query->set( 'product_cat', $current_server_name_shared_category_id );
 			} else {
 				if(!is_admin()) {
+					if($product_tag!="")
+					$query->set( 'product_tag', $product_tag );
+					else
 					//if($type!="product")
 					//if($type!="projectimer_focus")
 					$query->set( 'cat', $current_server_name_shared_category_id );
