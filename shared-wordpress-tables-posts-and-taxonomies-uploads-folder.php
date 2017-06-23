@@ -25,6 +25,8 @@ if(!is_network_admin()) {
 	
 	add_action( 'init', 'force_database_aditional_tables_share', 10, 2 );
 	add_action( 'plugins_loaded', 'force_database_aditional_tables_share', 10, 2 );
+	
+	if(is_admin())
 	add_action( 'switch_blog', 'force_database_aditional_tables_share', 10, 2 );
 		
 	#shared upload dir, comment to un-share
