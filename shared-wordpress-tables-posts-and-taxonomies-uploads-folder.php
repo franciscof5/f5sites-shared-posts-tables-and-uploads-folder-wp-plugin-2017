@@ -13,21 +13,51 @@
 if(!is_network_admin()) {
 	#need to be inserted in the that 3 hooks (and probably more)
 	#if(is_admin())
-	add_action( 'pre_get_posts', 'force_database_aditional_tables_share', 10, 2 );
+	//add_action( 'pre_get_posts', 'force_database_aditional_tables_share', 10, 2 );
 
 	#if ( !is_woocommerce() ) {
 		
 		#add_action( 'wp_head', 'force_database_aditional_tables_share', 10, 2 );
 
 		#if (! is_admin() )
-		#add_action( 'after_setup_theme', 'force_database_aditional_tables_share', 10, 2 );	
+		//add_action( 'after_setup_theme', 'force_database_aditional_tables_share', 10, 2 );	
 	#}
 	
-	add_action( 'init', 'force_database_aditional_tables_share', 10, 2 );
+	/*add_action( 'after_setup_theme', 'force_database_aditional_tables_share', 10, 2 );
+	add_action( 'woocommerce_loaded', 'force_database_aditional_tables_share', 10, 2 );
 	add_action( 'plugins_loaded', 'force_database_aditional_tables_share', 10, 2 );
+	add_action( 'setup_theme', 'force_database_aditional_tables_share', 10, 2 );
+	add_action( 'pre_get_sites', 'force_database_aditional_tables_share', 10, 2 );
+	add_action( 'woocommerce_integrations_init', 'force_database_aditional_tables_share', 10, 2 );
+	add_action( 'register_sidebar', 'force_database_aditional_tables_share', 10, 2 );*/
 	
-	if(is_admin())
-	add_action( 'switch_blog', 'force_database_aditional_tables_share', 10, 2 );
+	
+	//add_action( 'before_woocommerce_init', 'force_database_aditional_tables_share', 10, 2 );
+	//add_action( 'switch_blog', 'force_database_aditional_tables_share', 10, 2 );
+	//add_action( 'before_woocommerce_init', 'setWooFilters', 10, 2 );
+	
+	//woocommerce_loaded
+	
+	//if(!is_buddypress())
+	//if(is_admin())
+	//$_SERVER['REQUEST_URI'];
+	$inPageCrateTeams = strpos($_SERVER['REQUEST_URI'], "create");
+	//$inPageWoo = strpos($_SERVER['REQUEST_URI'], "woocommerce");
+	//$inPageProduto = strpos($_SERVER['REQUEST_URI'], "produto");
+	//echo $inPageCrateTeams;die;
+	
+	//if(is_admin() || $inPageWoo || $inPageProduto)
+	//var_dump(is_admin() || is_tax() || is_archive() || function_exists("is_woocommerce"));die;
+	add_action( 'pre_get_posts', 'force_database_aditional_tables_share', 10, 2 );//FOR BLOG POSTS
+	if(!$inPageCrateTeams) {
+		
+		add_action( 'switch_blog', 'force_database_aditional_tables_share', 10, 2 );
+	} else {
+		add_action( 'plugins_loaded', 'force_database_aditional_tables_share', 10, 2 );
+	}
+		
+	//if(is_admin())
+	//add_action( 'switch_blog', 'force_database_aditional_tables_share', 10, 2 );
 		
 	#shared upload dir, comment to un-share
 	add_filter( 'upload_dir', 'shared_upload_dir' );
@@ -69,7 +99,14 @@ function set_shared_database_schema() {
 	$wpdb->termmeta 			="1fnetwork_termmeta";
 	$wpdb->taxonomy 			="1fnetwork_taxonomy";
 }
-
+function setWooFilters() {
+	if(function_exists("is_woocommerce")) {
+		add_action( 'woocommerce_before_shop_loop_item', 'redirect_to_correct_store_in_shop_loop_title' );
+		add_filter( 'woocommerce_loop_add_to_cart_link', 'redirect_to_correct_store_in_shop_loop_cart', 10, 2 ); 
+		#
+		add_action( 'woocommerce_before_main_content', 'redirect_to_correct_store_in_single_view', 10, 2);
+	}
+}
 function force_database_aditional_tables_share($query) {
 	#revert previous altered function
 	//global $interrupt_database_share;
@@ -87,12 +124,7 @@ function force_database_aditional_tables_share($query) {
 	#$wpdb->base_prefix=$GLOBALS['table_prefix'];
 
 	#settype($query, "WP_Query");
-	if(function_exists("is_woocommerce")) {
-		add_action( 'woocommerce_before_shop_loop_item', 'redirect_to_correct_store_in_shop_loop_title' );
-		add_filter( 'woocommerce_loop_add_to_cart_link', 'redirect_to_correct_store_in_shop_loop_cart', 10, 2 ); 
-		#
-		add_action( 'woocommerce_before_main_content', 'redirect_to_correct_store_in_single_view', 10, 2);
-	}
+	setWooFilters();
 
 	$types_not_shared = array("projectimer_focus", "projectimer_rest", "projectimer_lost");
 		
@@ -335,7 +367,6 @@ function buddypress_tables_share() {
 	#$wpdb->categories="1fnetwork_categories"; OLD WP SETTINGS
 	#$wpdb->term_post2cat="1fnetwork_post2cat"; OLD WP SETTINGS
 }
-
 function revert_database_schema($prefix) {
 	#
 	global $wpdb;
@@ -377,7 +408,6 @@ function redirect_to_correct_store_in_shop_loop_title() {
 	}
 	echo '<a href="' . $purl . '" class="woocommerce-LoopProduct-link">';
 }
-
 function redirect_to_correct_store_in_shop_loop_cart( $array, $int ) { 
 	$purl = get_product_correct_url_by_id();
 	if(!$purl) {
@@ -427,6 +457,8 @@ function redirect_to_correct_store_in_single_view () {
 		}
 	}
 }
+
+/* UPLOAD FOLDER */
 function shared_upload_dir( $dirs ) {
     $dirs['baseurl'] = network_site_url( '/wp-content/uploads/shared-wp-posts-uploads-dir' );
     $dirs['basedir'] = ABSPATH . 'wp-content/uploads/shared-wp-posts-uploads-dir';
