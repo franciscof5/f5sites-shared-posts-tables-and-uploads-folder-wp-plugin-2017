@@ -11,18 +11,11 @@
 
 
 if(!is_network_admin()) {
-	#need to be inserted in the that 3 hooks (and probably more)
-	#if(is_admin())
-	//add_action( 'pre_get_posts', 'force_database_aditional_tables_share', 10, 2 );
-
 	#if ( !is_woocommerce() ) {
-		
 		#add_action( 'wp_head', 'force_database_aditional_tables_share', 10, 2 );
-
 		#if (! is_admin() )
 		//add_action( 'after_setup_theme', 'force_database_aditional_tables_share', 10, 2 );	
-	#}
-	
+	#}	
 	/*add_action( 'after_setup_theme', 'force_database_aditional_tables_share', 10, 2 );
 	add_action( 'woocommerce_loaded', 'force_database_aditional_tables_share', 10, 2 );
 	add_action( 'plugins_loaded', 'force_database_aditional_tables_share', 10, 2 );
@@ -30,41 +23,38 @@ if(!is_network_admin()) {
 	add_action( 'pre_get_sites', 'force_database_aditional_tables_share', 10, 2 );
 	add_action( 'woocommerce_integrations_init', 'force_database_aditional_tables_share', 10, 2 );
 	add_action( 'register_sidebar', 'force_database_aditional_tables_share', 10, 2 );*/
-	
-	
 	//add_action( 'before_woocommerce_init', 'force_database_aditional_tables_share', 10, 2 );
 	//add_action( 'switch_blog', 'force_database_aditional_tables_share', 10, 2 );
 	//add_action( 'before_woocommerce_init', 'setWooFilters', 10, 2 );
-	
 	//woocommerce_loaded
-	
 	//if(!is_buddypress())
 	//if(is_admin())
 	//$_SERVER['REQUEST_URI'];
-	$inPageCrateTeams = strpos($_SERVER['REQUEST_URI'], "create");
 	//$inPageWoo = strpos($_SERVER['REQUEST_URI'], "woocommerce");
 	//$inPageProduto = strpos($_SERVER['REQUEST_URI'], "produto");
 	//echo $inPageCrateTeams;die;
-	
 	//if(is_admin() || $inPageWoo || $inPageProduto)
 	//var_dump(is_admin() || is_tax() || is_archive() || function_exists("is_woocommerce"));die;
 	add_action( 'pre_get_posts', 'force_database_aditional_tables_share', 10, 2 );//FOR BLOG POSTS
-	if(!$inPageCrateTeams) {
-		
+	//
+	$inPageCrateTeams = strpos($_SERVER['REQUEST_URI'], "create");
+	if(!$inPageCrateTeams) {	
 		add_action( 'switch_blog', 'force_database_aditional_tables_share', 10, 2 );
+		//on franciscomat tests it shows need for 2 filters at same time
+		add_action( 'plugins_loaded', 'force_database_aditional_tables_share', 10, 2 );
 	} else {
 		add_action( 'plugins_loaded', 'force_database_aditional_tables_share', 10, 2 );
 	}
-		
-	//if(is_admin())
-	//add_action( 'switch_blog', 'force_database_aditional_tables_share', 10, 2 );
-		
-	#shared upload dir, comment to un-share
+	
+	//in admin always share
+	if(is_admin())
+	add_action( 'switch_blog', 'force_database_aditional_tables_share', 10, 2 );
+	//shared upload dir, comment to un-share
 	add_filter( 'upload_dir', 'shared_upload_dir' );
-
+	//
+	add_filter( 'nav_menu_link_attributes', 'filter_function_name', 10, 3 );
 	#Work in progress for buddypress integration, some problems might occur with sensitivy user data, like user_blogs table, making impossible to cross-share between multiple installs, but it is a good start point
 	#add_action( 'bp_loaded', 'buddypress_tables_share', 10, 2 );
-	add_filter( 'nav_menu_link_attributes', 'filter_function_name', 10, 3 );
 }
 
 function filter_function_name( $atts, $item, $args ) {
