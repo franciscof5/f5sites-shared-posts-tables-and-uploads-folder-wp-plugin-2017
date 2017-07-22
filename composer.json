@@ -1,7 +1,7 @@
 {
-	"name": "f5sites/shared-wordpress-tables-posts-and-taxonomies-uploads-folder",
-	"version": "0.2",
-	"description": "Shared WordPress Tables Posts and Taxonomies for multiple wp install under the same database, by default wp only can share users. Made for use in fnetwork",
+	"name": "f5sites/f5sites-shared-posts-tables-and-uploads-folder",
+	"version": "1.0",
+	"description": "Hacks WordPress databases, sharing posts and taxonomies tables for multiple wp install under the same database, by default wp only can share tables users and usermeta. Made for use in fnetwork.",
 	"type": "wordpress-plugin",
 	"authors": [
 		{

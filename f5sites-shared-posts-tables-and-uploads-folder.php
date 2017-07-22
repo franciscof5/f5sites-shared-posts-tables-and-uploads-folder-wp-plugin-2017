@@ -1,15 +1,16 @@
 <?php
 /**
- * Plugin Name: Shared Post Type & Taxonomies Table + Uploads Folder
- * Plugin URI: https://www.f5sites.com/shared-wordpress-tables-posts-and-taxonomies
- * Description: Shared WordPress Tables Posts and Taxonomies for multiple wp install under multiple domains (using the same database), by default wp-config.php only can share users, limiting scalability. It is for advanced users and optimized for WordPress as composer package. Just create a wordpress category with the current site domain, like www.f5sites.com or www.franciscomat.com and it will only be displayed in the correct location Original project for use in f5sites fnetwork. (woocommerce, pdfcatalog, wpmu, buddypress, bp xprofile, projectimer ready)
- * Version: 1.1
+ * Plugin Name: F5 Sites | Shared Posts Tables & Uploads Folder
+ * Plugin URI: https://www.f5sites.com/software/wordpress/f5sites-shared-posts-tables-and-uploads-folder/
+ * Description: Hacks WordPress databases, sharing posts and taxonomies tables for multiple wp install under the same database, by default wp only can share tables users and usermeta. Made for use in fnetwor
+ * Tags: woocommerce, pdfcatalog, wpmu, buddypress, bp xprofile, projectimer ready
+ * Version: 1.0
  * Author: Francisco Matelli Matulovic
  * Author URI: https://www.franciscomat.com
- * License: Apache 2.0
+ * License: GPLv3
  */
 
-
+ 
 if(!is_network_admin()) {
 	#if ( !is_woocommerce() ) {
 		#add_action( 'wp_head', 'force_database_aditional_tables_share', 10, 2 );
