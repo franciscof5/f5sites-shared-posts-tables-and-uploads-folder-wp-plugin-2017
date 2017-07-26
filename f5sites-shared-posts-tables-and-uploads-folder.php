@@ -196,7 +196,7 @@ function force_database_aditional_tables_share($query) {
 }
 function filter_posts_by_cat($queryReceived) {
 	global $wp_the_query;
-	//global $query;
+	global $query;
 	
 	//var_dump($wp_the_query);
 	//if($wp_the_query!=NULL)
