@@ -75,20 +75,29 @@ function set_shared_database_schema() {
 	#require_wp_db();
 	#wp_set_wpdb_vars();
 	#die;
+	#var_dump(dirname(__FILE__)."/config.php");
+	if(is_file(dirname(__FILE__)."/config.php")) {
+		include("config.php");
+		#echo $config["posts"];die;
+	} else {
+		echo "F5 Sites Shared posts warning: please enter plugin folder and configure it: copy config.example.php and rename it to config.php with you changes";die;	
+	}
+	#var_dump($config);die;
 	#
-	$wpdb->posts 				="1fnetwork_posts";
-	$wpdb->postmeta 			="1fnetwork_postmeta";
+	$wpdb->posts 				= $config["posts"];
+	$wpdb->postmeta 			= $config["postmeta"];
 	#
-	$wpdb->comments 			="1fnetwork_comments";
-	$wpdb->commentmeta 			="1fnetwork_commentmeta";
+	$wpdb->terms 				= $config["terms"];
+	$wpdb->term_taxonomy 		= $config["term_taxonomy"];
+	$wpdb->term_relationships 	= $config["term_relationships"];
+	$wpdb->termmeta 			= $config["termmeta"];
+	$wpdb->taxonomy 			= $config["taxonomy"];
 	#
-	$wpdb->links 				="1fnetwork_links";
+	$wpdb->comments 			= $config["comments"];
+	$wpdb->commentmeta 			= $config["commentmeta"];
 	#
-	$wpdb->terms 				="1fnetwork_terms";
-	$wpdb->term_taxonomy 		="1fnetwork_term_taxonomy";
-	$wpdb->term_relationships 	="1fnetwork_term_relationships";
-	$wpdb->termmeta 			="1fnetwork_termmeta";
-	$wpdb->taxonomy 			="1fnetwork_taxonomy";
+	$wpdb->links 				= $config["links"];
+	#var_dump($wpdb->posts);die;
 }
 function setWooFilters() {
 	if(function_exists("is_woocommerce")) {
