@@ -42,7 +42,7 @@ if(!is_network_admin()) {
 	if(!$inPageCrateTeams) {	
 		add_action( 'switch_blog', 'force_database_aditional_tables_share', 10, 2 );
 		//on franciscomat tests it shows need for 2 filters at same time
-		#add_action( 'plugins_loaded', 'force_database_aditional_tables_share', 10, 2 );
+		add_action( 'plugins_loaded', 'force_database_aditional_tables_share', 10, 2 );
 	} else {
 		add_action( 'plugins_loaded', 'force_database_aditional_tables_share', 10, 2 );
 	}
@@ -136,15 +136,22 @@ function force_database_aditional_tables_share($query) {
 		$type = $query->query["post_type"];
 	else
 		$type="notknow";#(post or page problably, but maybe menu)
-
-	#echo $type. " TSHARED in_array:".in_array($type, $types_not_shared);
+	global $last_type;
 	
-	if(!in_array($type, $types_not_shared)) {
-		#echo("not not shared");
-		set_shared_database_schema();
-		if($type!="page")
-		filter_posts_by_cat($query);
-	}
+	#echo $type. " TSHARED in_array:".in_array($type, $types_not_shared)." last_type. ".$last_type. " } ";
+
+	#if($last_type=="notknow") {
+		
+
+		if(!in_array($type, $types_not_shared)) {
+			#echo("not not shared");
+			set_shared_database_schema();
+			if($type!="page")
+			filter_posts_by_cat($query);
+		}
+	#}
+	$last_type=$type;
+
 	#var_dump($wp_the_query);
 
 	#get current domain
