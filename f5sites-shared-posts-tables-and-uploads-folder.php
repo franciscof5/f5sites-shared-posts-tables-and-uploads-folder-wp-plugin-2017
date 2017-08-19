@@ -42,14 +42,17 @@ if(!is_network_admin()) {
 	if(!$inPageCrateTeams) {	
 		add_action( 'switch_blog', 'force_database_aditional_tables_share', 10, 2 );
 		//on franciscomat tests it shows need for 2 filters at same time
-		add_action( 'plugins_loaded', 'force_database_aditional_tables_share', 10, 2 );
+		#add_action( 'plugins_loaded', 'force_database_aditional_tables_share', 10, 2 );
 	} else {
 		add_action( 'plugins_loaded', 'force_database_aditional_tables_share', 10, 2 );
 	}
 	
 	//in admin always share
-	if(is_admin())
-	add_action( 'switch_blog', 'force_database_aditional_tables_share', 10, 2 );
+	if(is_admin()) {
+		add_action( 'switch_blog', 'force_database_aditional_tables_share', 10, 2 );
+		add_action( 'plugins_loaded', 'force_database_aditional_tables_share', 10, 2 );
+	}
+	
 	//shared upload dir, comment to un-share
 	add_filter( 'upload_dir', 'shared_upload_dir' );
 	//
@@ -128,15 +131,16 @@ function force_database_aditional_tables_share($query) {
 
 	$types_not_shared = array("projectimer_focus", "projectimer_rest", "projectimer_lost");
 		
-	//var_dump($query);
+	#var_dump($query);
 	if(isset($query->query["post_type"])) 
 		$type = $query->query["post_type"];
 	else
 		$type="notknow";#(post or page problably, but maybe menu)
 
-	//echo $type. " TSHARED".!in_array($type, $types_not_shared);
+	#echo $type. " TSHARED in_array:".in_array($type, $types_not_shared);
+	
 	if(!in_array($type, $types_not_shared)) {
-		#not not shared = shared
+		#echo("not not shared");
 		set_shared_database_schema();
 		if($type!="page")
 		filter_posts_by_cat($query);
@@ -408,6 +412,7 @@ function redirect_to_correct_store_in_shop_loop_title() {
 	}
 	echo '<a href="' . $purl . '" class="woocommerce-LoopProduct-link">';
 }
+
 function redirect_to_correct_store_in_shop_loop_cart( $array, $int ) { 
 	$purl = get_product_correct_url_by_id();
 	if(!$purl) {
@@ -449,6 +454,7 @@ function get_product_correct_url_by_id($postid=0) {
 		return;
 	}
 }
+
 function redirect_to_correct_store_in_single_view () {
 	if(is_product()) {
 		$purl = get_product_correct_url_by_id();
