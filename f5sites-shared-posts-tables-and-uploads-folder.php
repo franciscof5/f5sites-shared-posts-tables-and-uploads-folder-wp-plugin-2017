@@ -53,14 +53,23 @@ if(!is_network_admin()) {
 		add_action( 'plugins_loaded', 'force_database_aditional_tables_share', 10, 2 );
 	}
 	
+
 	//shared upload dir, comment to un-share
 	add_filter( 'upload_dir', 'shared_upload_dir' );
 	//
 	add_filter( 'nav_menu_link_attributes', 'filter_function_name', 10, 3 );
 	#Work in progress for buddypress integration, some problems might occur with sensitivy user data, like user_blogs table, making impossible to cross-share between multiple installs, but it is a good start point
 	#add_action( 'bp_loaded', 'buddypress_tables_share', 10, 2 );
-}
 
+	#ULTIMO ESTAGIO, precisa funcionar os widgets e os nav links abaixo dos posts e tudo fica joia 2017-10-06
+	#add_action( 'widgets_init', 'asda', 10, 2 );	
+}
+function asda() {
+	#die;
+	global $wp_the_query;
+	var_dump($wp_the_query);
+	die;
+}
 function filter_function_name( $atts, $item, $args ) {
     // Manipulate attributes
     //var_dump($args);
@@ -117,9 +126,34 @@ function force_database_aditional_tables_share($query) {
 
 	global $wpdb;
 	global $wp_the_query;
+	#echo !is_int($query);
+	#echo !isset($query);die;
 	
-	if($wp_the_query!=NULL)
-		$query = $wp_the_query;
+
+	if(!isset($query)) {
+		#echo "NAO VEIO QUERY";
+		if($wp_the_query!=NULL) {
+			#echo "SETOU A GLOBAL";
+			$query = $wp_the_query;
+		}
+	} else {
+		#echo "VEIO QUERY";
+		if(is_object($query)) {
+			#var_dump($query);
+			#echo "VEIO UM OBJETO (query)"; #OBS SEMPRE VEM UM INTEIRO, por isso use NUMERICO
+			#if($wp_the_query!=NULL) {
+			#	echo "SETOU A GLOBAL";
+			#	$query = $wp_the_query;
+			#}
+		} else {
+			#var_dump($query);
+			#echo "SETOU A GLOBAL PORQUE VEIO VAZIO";
+			$query = $wp_the_query;
+			#var_dump($query);
+			#return;
+		}
+	}
+	
 	#else
 	#	return;
 	#echo $query;
@@ -132,22 +166,25 @@ function force_database_aditional_tables_share($query) {
 	$types_not_shared = array("projectimer_focus", "projectimer_rest", "projectimer_lost");
 		
 	#var_dump($query);
-	if(isset($query->query["post_type"])) 
+	if(isset($query->query["post_type"])) {
 		$type = $query->query["post_type"];
-	else
+	} else {
+		#return;
 		$type="notknow";#(post or page problably, but maybe menu)
+	}
+	
 	global $last_type;
 	
-	#echo $type. " TSHARED in_array:".in_array($type, $types_not_shared)." last_type. ".$last_type. " } ";
+	#echo "type: ".$type. ", in array type shared:".in_array($type, $types_not_shared).", last_type. ".$last_type;
 
 	#if($last_type=="notknow") {
-		
-
 		if(!in_array($type, $types_not_shared)) {
 			#echo("not not shared");
 			set_shared_database_schema();
-			if($type!="page")
-			filter_posts_by_cat($query);
+
+			if($type!="page" and $type!="nav_menu_item") {
+				filter_posts_by_cat($query);
+			}
 		}
 	#}
 	$last_type=$type;
@@ -290,7 +327,7 @@ function filter_posts_by_cat($queryReceived) {
 		
 		#if(isset($current_server_name_shared_category_id)) {
 		#if(!isset($category) && !isset($is_category)) {
-		//var_dump("<br /> type: ".$type. ", <br /> is_shop: ".is_shop(). ", <br /> domain: ".$current_server_name. ", <br /> is_woocommerce(): ".is_woocommerce(). ", <br /> pdfcat: ". ", <br /> gettype: ".gettype($query).", <br /> current_server_name_shared_category_id:".$current_server_name_shared_category_id.", <br /> category:".$category.", <br /> is_category:".$is_category.", <br /> typequery:".gettype($query));
+		
 		//if(!isset($category)) {
 		//if(gettype($query)=="WP_Query") {
 		
@@ -306,19 +343,29 @@ function filter_posts_by_cat($queryReceived) {
 			//	$query->set( 'product_tag', $product_tag );	
 			//var_dump("<br /> type: ".$type. ", <br /> is_shop: ".is_shop(). ", <br /> domain: ".$current_server_name. ", <br /> is_woocommerce(): ".is_woocommerce(). ", <br /> pdfcat: ". ", <br /> gettype: ".gettype($query).", <br /> current_server_name_shared_category_id:".$current_server_name_shared_category_id.", <br /> category:".$category.", <br /> is_category:".$is_category.", <br /> typequery:".gettype($query)." <br />product_tag:".$product_tag);
 			
-			if($category!="") {
+			#if($category!="") {
 				
 				//$query->set( 'cat', $current_server_name_shared_category_id );
 				//$query->set( 'product_cat', $current_server_name_shared_category_id );
-			} else {
+			
+			if($category=="") {
 				if(!is_admin()) {
-					if($product_tag!="")
-					$query->set( 'product_tag', $product_tag );
-					else
+					##IS FRONT-END
+					#var_dump("product_tag: $product_tag");
+					#var_dump($query);
+
+					if($product_tag!="") {
+						$query->set( 'product_tag', $product_tag );
+					} else {
+						$query->set( 'cat', $current_server_name_shared_category_id );
+						#$query->set( 'category__in', $current_server_name_shared_category_id );
+						#var_dump($query);
+					}
 					//if($type!="product")
 					//if($type!="projectimer_focus")
-					$query->set( 'cat', $current_server_name_shared_category_id );
+					
 				}
+			} else {
 			}
 				
 			#$query->set( 'category', $current_server_name_shared_category_id );
