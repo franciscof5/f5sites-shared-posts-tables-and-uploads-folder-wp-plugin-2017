@@ -166,7 +166,7 @@ function force_database_aditional_tables_share($query) {
 
 	$types_not_shared = array("projectimer_focus", "projectimer_rest", "projectimer_lost");
 		
-	#var_dump($query->query["post_type"]);
+	
 	#die;
 	if(isset($query->query["post_type"])) {
 		$type = $query->query["post_type"];
@@ -189,7 +189,9 @@ function force_database_aditional_tables_share($query) {
 			}
 		} else {
 			#echo("$type is not not shared");
-			#revert_database_schema("");
+			
+			revert_database_schema();
+
 		}
 	#}
 	$last_type=$type;
@@ -430,16 +432,18 @@ function buddypress_tables_share() {
 	#$wpdb->categories="1fnetwork_categories"; OLD WP SETTINGS
 	#$wpdb->term_post2cat="1fnetwork_post2cat"; OLD WP SETTINGS
 }
-function revert_database_schema($prefix) {
+function revert_database_schema() {
 	#
 	global $wpdb;
 	#in wp-config and wp-settings.php
-	if($prefix=="") {
+	/*if($prefix=="") {
 		if(table_prefix)
 			$prefix=table_prefix;
 		else
 			$prefix = "pomodoros";	
-	}
+	}*/
+	global $table_prefix;
+	$prefix=$table_prefix;
 	
 	#
 	$wpdb->posts=$prefix."posts";
