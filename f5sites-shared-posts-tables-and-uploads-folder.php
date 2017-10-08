@@ -37,7 +37,8 @@ if(!is_network_admin()) {
 	//if(is_admin() || $inPageWoo || $inPageProduto)
 	//var_dump(is_admin() || is_tax() || is_archive() || function_exists("is_woocommerce"));die;
 	add_action( 'pre_get_posts', 'force_database_aditional_tables_share', 10, 2 );//FOR BLOG POSTS
-	//
+	
+	//THIS IS ONLY FOR A BUDDYPRESS SPECIFIC PAGE INTEGRATION
 	$inPageCrateTeams = strpos($_SERVER['REQUEST_URI'], "create");
 	if(!$inPageCrateTeams) {	
 		add_action( 'switch_blog', 'force_database_aditional_tables_share', 10, 2 );
@@ -64,12 +65,12 @@ if(!is_network_admin()) {
 	#ULTIMO ESTAGIO, precisa funcionar os widgets e os nav links abaixo dos posts e tudo fica joia 2017-10-06
 	#add_action( 'widgets_init', 'asda', 10, 2 );	
 }
-function asda() {
+/*function asda() {
 	#die;
 	global $wp_the_query;
 	var_dump($wp_the_query);
 	die;
-}
+}*/
 function filter_function_name( $atts, $item, $args ) {
     // Manipulate attributes
     //var_dump($args);
@@ -165,7 +166,8 @@ function force_database_aditional_tables_share($query) {
 
 	$types_not_shared = array("projectimer_focus", "projectimer_rest", "projectimer_lost");
 		
-	#var_dump($query);
+	#var_dump($query->query["post_type"]);
+	#die;
 	if(isset($query->query["post_type"])) {
 		$type = $query->query["post_type"];
 	} else {
@@ -175,16 +177,19 @@ function force_database_aditional_tables_share($query) {
 	
 	global $last_type;
 	
-	#echo "type: ".$type. ", in array type shared:".in_array($type, $types_not_shared).", last_type. ".$last_type;
-
+	#echo "type: ".$type. ", in array types not shared:".in_array($type, $types_not_shared).", last_type: ".$last_type;
+	#echo "<hr />";
 	#if($last_type=="notknow") {
 		if(!in_array($type, $types_not_shared)) {
-			#echo("not not shared");
+			#echo("$type is shared");
 			set_shared_database_schema();
 
 			if($type!="page" and $type!="nav_menu_item") {
 				filter_posts_by_cat($query);
 			}
+		} else {
+			#echo("$type is not not shared");
+			revert_database_schema("");
 		}
 	#}
 	$last_type=$type;
