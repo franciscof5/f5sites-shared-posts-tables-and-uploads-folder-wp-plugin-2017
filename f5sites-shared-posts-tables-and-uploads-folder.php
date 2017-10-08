@@ -189,7 +189,7 @@ function force_database_aditional_tables_share($query) {
 			}
 		} else {
 			#echo("$type is not not shared");
-			revert_database_schema("");
+			#revert_database_schema("");
 		}
 	#}
 	$last_type=$type;
