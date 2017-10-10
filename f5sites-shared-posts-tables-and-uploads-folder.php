@@ -52,6 +52,8 @@ if(!is_network_admin()) {
 	if(is_admin()) {
 		add_action( 'switch_blog', 'force_database_aditional_tables_share', 10, 2 );
 		add_action( 'plugins_loaded', 'force_database_aditional_tables_share', 10, 2 );
+		##### PUBLICANDO PRODUTOS dando erro
+		add_action( 'woocommerce_loaded', 'force_database_aditional_tables_share', 10, 2 );
 	}
 	
 
@@ -157,7 +159,7 @@ function force_database_aditional_tables_share($query) {
 			#	return;
 		}
 	}
-	#var_dump(debug_backtrace());
+	
 	#var_dump($query);
 	#else
 	#	return;
@@ -170,9 +172,24 @@ function force_database_aditional_tables_share($query) {
 
 	$types_not_shared = array("projectimer_focus", "projectimer_rest", "projectimer_lost");
 
-	#ULTRA CARE ABOUT LINE ABOVE
-	$types_not_shared[] = "any";
-		
+	#echo $force_publish_post_not_shared;
+	global $force_publish_post_not_shared;
+	if($force_publish_post_not_shared) {
+		#post NAO sera compartilhado, vai pro bd especifico (prov pomodoros_)
+		$types_not_shared[] = "any";
+	}
+	
+	#ULTRA CARE ABOUT LINE ABOVE (sem comentarios, eh muito gambiarra)
+	/*if(!is_admin()) {
+		#se for pelo front-end 
+		$types_not_shared[] = "any"; #com essa linha any vai para _posts especifico, sem essa linha vai para 1fnetwork_posts
+	} else {
+		$types_not_shared[] = "any";
+		#se for pelo admin então para publicar
+		#é compartilhado
+		#e any é shared, então fora desse array
+		#lógico,,... mais uma gambiarra, em cima da gambiarra	
+	}*/
 	
 	#die;
 	if(isset($query->query["post_type"])) {
@@ -184,7 +201,7 @@ function force_database_aditional_tables_share($query) {
 	
 	global $last_type;
 	
-	#echo "type: ".$type. ", in array types not shared:".in_array($type, $types_not_shared).", last_type: ".$last_type;
+	
 	#echo "<hr />";
 	#if($last_type=="notknow") {
 		if(!in_array($type, $types_not_shared)) {
@@ -201,6 +218,11 @@ function force_database_aditional_tables_share($query) {
 
 		}
 	#}
+	#var_dump(debug_backtrace());
+	#echo "type: ".$type. ", in array types not shared:".in_array($type, $types_not_shared).", last_type: ".$last_type;
+	#var_dump($query);
+	#if($last_type!=NULL)
+	#die;
 	$last_type=$type;
 
 	#var_dump($wp_the_query);
