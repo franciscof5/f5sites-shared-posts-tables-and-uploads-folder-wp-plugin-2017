@@ -61,7 +61,8 @@ if(!is_network_admin()) {
 	add_filter( 'nav_menu_link_attributes', 'filter_function_name', 10, 3 );
 	#Work in progress for buddypress integration, some problems might occur with sensitivy user data, like user_blogs table, making impossible to cross-share between multiple installs, but it is a good start point
 	#add_action( 'bp_loaded', 'buddypress_tables_share', 10, 2 );
-
+	#add_action( 'wp_insert_post', 'force_database_aditional_tables_share', 20, 2 );
+	#add_action( 'wp_insert_post', 'force_database_aditional_tables_share' );
 	#ULTIMO ESTAGIO, precisa funcionar os widgets e os nav links abaixo dos posts e tudo fica joia 2017-10-06
 	#add_action( 'widgets_init', 'asda', 10, 2 );	
 }
@@ -141,7 +142,7 @@ function force_database_aditional_tables_share($query) {
 		#echo "VEIO QUERY";
 		if(is_object($query)) {
 			#var_dump($query);
-			#echo "VEIO UM OBJETO (query)"; #OBS SEMPRE VEM UM INTEIRO, por isso use NUMERICO
+			#echo "VEIO UM OBJETO (query)";
 			#if($wp_the_query!=NULL) {
 			#	echo "SETOU A GLOBAL";
 			#	$query = $wp_the_query;
@@ -152,9 +153,12 @@ function force_database_aditional_tables_share($query) {
 			$query = $wp_the_query;
 			#var_dump($query);
 			#return;
+			#if($query==NULL)
+			#	return;
 		}
 	}
-	
+	#var_dump(debug_backtrace());
+	#var_dump($query);
 	#else
 	#	return;
 	#echo $query;
@@ -165,6 +169,9 @@ function force_database_aditional_tables_share($query) {
 	setWooFilters();
 
 	$types_not_shared = array("projectimer_focus", "projectimer_rest", "projectimer_lost");
+
+	#ULTRA CARE ABOUT LINE ABOVE
+	$types_not_shared[] = "any";
 		
 	
 	#die;
@@ -448,17 +455,18 @@ function revert_database_schema() {
 	#
 	$wpdb->posts=$prefix."posts";
 	$wpdb->postmeta=$prefix."postmeta";
+	$wpdb->terms=$prefix."terms";
+	$wpdb->term_taxonomy=$prefix."term_taxonomy";
+	$wpdb->term_relationships=$prefix."term_relationships";
+	$wpdb->termmeta=$prefix."termmeta";
+	$wpdb->taxonomy=$prefix."taxonomy";
 	#
 	$wpdb->comments=$prefix."comments";
 	$wpdb->commentmeta=$prefix."commentmeta";
 	#
 	$wpdb->links=$prefix."links";
 	#
-	$wpdb->terms=$prefix."terms";
-	$wpdb->term_taxonomy=$prefix."term_taxonomy";
-	$wpdb->term_relationships=$prefix."term_relationships";
-	$wpdb->termmeta=$prefix."termmeta";
-	$wpdb->taxonomy=$prefix."taxonomy";
+
 	# OLD WP SETTINGS
 	#$wpdb->categories="1fnetwork_categories"; OLD WP SETTINGS
 	#$wpdb->term_post2cat="1fnetwork_post2cat"; OLD WP SETTINGS
