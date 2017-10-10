@@ -100,6 +100,7 @@ function set_shared_database_schema() {
 	}
 	#var_dump($config);die;
 	#
+	#$wpdb->prefix 				= "1fnetwok_";
 	$wpdb->posts 				= $config["posts"];
 	$wpdb->postmeta 			= $config["postmeta"];
 	#
@@ -205,22 +206,25 @@ function force_database_aditional_tables_share($query) {
 	#echo "<hr />";
 	#if($last_type=="notknow") {
 		if(!in_array($type, $types_not_shared)) {
-			#echo("$type is shared");
+			#YES-SHARED
+			#echo "$type is shared";
 			set_shared_database_schema();
 
 			if($type!="page" and $type!="nav_menu_item") {
+				#echo "$type precisa de filtro de categoria";
 				filter_posts_by_cat($query);
 			}
 		} else {
-			#echo("$type is not not shared");
+			#NOT-SHARED
+			#echo "$type is not not shared";
 			
 			revert_database_schema();
 
 		}
 	#}
 	#var_dump(debug_backtrace());
-	#echo "type: ".$type. ", in array types not shared:".in_array($type, $types_not_shared).", last_type: ".$last_type;
-	#var_dump($query);
+	#echo "type: ".$type. ", in array types not shared: ".(in_array($type, $types_not_shared) ? "NOT-SHARED" : "YES-SHARED").", last_type: ".$last_type;
+	#var_dump($wpdb);
 	#if($last_type!=NULL)
 	#die;
 	$last_type=$type;
@@ -391,9 +395,21 @@ function filter_posts_by_cat($queryReceived) {
 					#var_dump($query);
 
 					if($product_tag!="") {
+						#echo ". Setou a tag: $product_tag";
 						$query->set( 'product_tag', $product_tag );
 					} else {
-						$query->set( 'cat', $current_server_name_shared_category_id );
+						#echo ". Setou a categoria id: $current_server_name_shared_category_id";
+						
+						global $reverter_filtro_de_categoria_pra_forcar_funcionamento;
+						#echo " [reverter_filtro_de_categoria_pra_forcar_funcionamento=$reverter_filtro_de_categoria_pra_forcar_funcionamento]";
+
+						if(!$reverter_filtro_de_categoria_pra_forcar_funcionamento) {
+							#echo " CATEGORIA FILTRADA";
+							$query->set( 'cat', $current_server_name_shared_category_id );	
+						} else {
+							#echo "Devido ao cancelamento do filtro de categoria, todas as categorias serao exibidas";
+						}
+						
 						#$query->set( 'category__in', $current_server_name_shared_category_id );
 						#var_dump($query);
 					}
