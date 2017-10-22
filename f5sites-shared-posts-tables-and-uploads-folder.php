@@ -37,7 +37,7 @@ if(!is_network_admin()) {
 	//echo $inPageCrateTeams;die;
 	//if(is_admin() || $inPageWoo || $inPageProduto)
 	//var_dump(is_admin() || is_tax() || is_archive() || function_exists("is_woocommerce"));die;
-	add_action( 'pre_get_posts', 'force_database_aditional_tables_share', 10, 2 );//FOR BLOG POSTS
+	#add_action( 'pre_get_posts', 'force_database_aditional_tables_share', 10, 2 );//FOR BLOG POSTS
 	
 	//THIS IS ONLY FOR A BUDDYPRESS SPECIFIC PAGE INTEGRATION
 	$inPageCrateTeams = strpos($_SERVER['REQUEST_URI'], "create");
@@ -92,9 +92,11 @@ if(!is_network_admin()) {
 	add_action('woocommerce_checkout_create_order', 'mega_force_woo_type');
 	add_action("get_orders_F5SITES_inserted_hook", "force_woo_type", 10, 2);
 	add_action("set_product_id_F5SITES_HOOK", "set_shared_database_schema", 10, 2); #SIM, PRECISA VOLTAR PARA PEGAR O PRODUTO NOS POSTS SHARED
+	add_action("get_order_report_data_F5SITES_HOOK", "force_woo_type", 10, 2);
+
 }
 
-#global $debug_force;$debug_force = true;
+global $debug_force;$debug_force = true;
 
 function filter_function_name( $atts, $item, $args ) {
     // Manipulate attributes
@@ -191,15 +193,42 @@ function set_shared_database_schema() {
 function force_woo_type() {
 	global $wpdb;
 	global $debug_force;
+	#$debug_force=true;
 	#global $woo_priority;
 	#$woo_priority=true;
 	if($debug_force)
 		echo " force_woo_type(); TABELA "." 9woo_".$wpdb->prefix."shop_order_posts";
 
-	$wpdb->posts 				= "9woo_".$wpdb->prefix."shop_order_posts";
-	$wpdb->postmeta 			= "9woo_".$wpdb->prefix."shop_order_postmeta";
-	#$wpdb->posts 				= "9fnetwork_woo_shop_order_posts";
-	#$wpdb->postmeta 			= "9fnetwork_woo_shop_order_postmeta";
+	$table_woo_posts	= "6woo_".$wpdb->prefix."shop_order_posts";
+	$table_woo_postmeta = "6woo_".$wpdb->prefix."shop_order_postmeta";
+
+	$exists_table_woo_posts = $wpdb->get_var("SHOW TABLES LIKE '$table_woo_posts'");
+	$exists_table_woo_postmeta = $wpdb->get_var("SHOW TABLES LIKE '$table_woo_postmeta'");
+
+	#$wpdb->posts 		= $table_woo_posts;
+	#$wpdb->postmeta 	= $table_woo_postmeta;
+	#$wpdb->posts 		= "9woo_pomodoros_shop_order_posts";#FUNFA
+	#$wpdb->postmeta 	= "9woo_pomodoros_shop_order_postmeta";#FUNFA
+	
+	if(($exists_table_woo_posts!=$table_woo_posts) || ($exists_table_woo_postmeta!=$table_woo_postmeta)) {
+		if($debug_force)
+		echo " separated tables woo not found, creating then ";
+		create_separated_woo_table_for_prefix_then_return();
+		#die;
+	} else {
+		if($debug_force)
+		echo " woo tables found, proceed with change ";
+
+		$wpdb->posts 		= $table_woo_posts;
+		$wpdb->postmeta 	= $table_woo_postmeta;
+		#$wpdb->posts 		= "9woo_pomodoros_shop_order_posts";#FUNFA
+		#$wpdb->postmeta 	= "9woo_pomodoros_shop_order_postmeta";#FUNFA
+		#$wpdb->posts 				= "9fnetwork_woo_shop_order_posts";#FUNFA
+		#$wpdb->postmeta 			= "9fnetwork_woo_shop_order_postmeta";#FUNFA
+		#create_separated_woo_table_for_prefix_then_return();
+		#die;	
+	}
+	
 }
 
 function mega_force_woo_type() {
@@ -687,6 +716,92 @@ function revert_database_schema() {
 	#$wpdb->term_post2cat="1fnetwork_post2cat"; OLD WP SETTINGS
 }
 
+function create_separated_woo_table_for_prefix_then_return() {
+	global $debug_force;
+	if($debug_force)
+	echo " create_separated_woo_table_for_prefix_then_return(); ";
+	global $wpdb;
+	#
+	$table_woo_posts	= "6woo_".$wpdb->prefix."shop_order_posts";
+	$table_woo_postmeta = "6woo_".$wpdb->prefix."shop_order_postmeta";
+	#
+	#$charset_collate = $wpdb->get_charset_collate();
+	$charset_collate = ' ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ';
+	#echo "CHAR: ".$charset_collate;
+	#die;
+	/*$sql_settings = '
+		SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+		SET AUTOCOMMIT = 0;
+		START TRANSACTION;
+		SET time_zone = "+00:00";';*/
+	#
+	$sql_posts = 'CREATE TABLE IF NOT EXISTS `'.$table_woo_posts.'` (
+	  `ID` bigint(20) UNSIGNED NOT NULL,
+	  `post_author` bigint(20) UNSIGNED NOT NULL DEFAULT "0",
+	  `post_date` datetime NOT NULL DEFAULT "0000-00-00 00:00:00",
+	  `post_date_gmt` datetime NOT NULL DEFAULT "0000-00-00 00:00:00",
+	  `post_content` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+	  `post_title` text CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+	  `post_excerpt` text CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+	  `post_status` varchar(20) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT "publish",
+	  `comment_status` varchar(20) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT "open",
+	  `ping_status` varchar(20) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT "open",
+	  `post_password` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT "",
+	  `post_name` varchar(200) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT "",
+	  `to_ping` text CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+	  `pinged` text CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+	  `post_modified` datetime NOT NULL DEFAULT "0000-00-00 00:00:00",
+	  `post_modified_gmt` datetime NOT NULL DEFAULT "0000-00-00 00:00:00",
+	  `post_content_filtered` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+	  `post_parent` bigint(20) UNSIGNED NOT NULL DEFAULT "0",
+	  `guid` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT "",
+	  `menu_order` int(11) NOT NULL DEFAULT "0",
+	  `post_type` varchar(20) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT "post",
+	  `post_mime_type` varchar(100) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT "",
+	  `comment_count` bigint(20) NOT NULL DEFAULT "0"
+		) '.$charset_collate.';';
+  	#
+	$a1 = 'ALTER TABLE `'.$table_woo_posts.'`
+		  ADD PRIMARY KEY (`ID`),
+		  ADD KEY `post_name` (`post_name`);';
+
+	$a2 = 'ALTER TABLE `'.$table_woo_posts.'`
+  			MODIFY `ID` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;';
+
+	$sql_post_meta = 'CREATE TABLE IF NOT EXISTS `'.$table_woo_postmeta.'` (
+		  `meta_id` bigint(20) UNSIGNED NOT NULL,
+		  `post_id` bigint(20) UNSIGNED NOT NULL DEFAULT "0",
+		  `meta_key` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+		  `meta_value` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci
+		) '.$charset_collate;
+
+	$a11 = 'ALTER TABLE `'.$table_woo_postmeta.'`
+		  ADD PRIMARY KEY (`meta_id`),
+		  ADD KEY `post_id` (`post_id`),
+		  ADD KEY `meta_key` (`meta_key`);';
+	$a22 = 'ALTER TABLE `'.$table_woo_postmeta.'`
+  		  MODIFY `meta_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;';
+  	#$sql_settings..$sql_post_meta
+  	#$final_sql = $sql_posts;
+  	#if($debug_force)
+  	#var_dump($final_sql);
+  	require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+  	$sql1ok = dbDelta( $sql_posts );
+  	$sql2ok = dbDelta( $sql_post_meta );
+
+  	$wpdb->query($a1);
+  	
+  	$wpdb->query($a11);
+
+  	$wpdb->query($a2);
+
+  	$wpdb->query($a22);
+  	#var_dump($sqlok);
+  	if($sql1ok && $sql2ok)
+  		force_woo_type();
+  	else 
+  		echo " Problems create tables, check plugin F5 Sites | Shared Posts Tables and Upload Folder";
+}
 
 /* WOOCOMMERCE FNETWORK */
 function redirect_to_correct_store_in_shop_loop_title() {
