@@ -489,7 +489,11 @@ function force_database_aditional_tables_share($query) {
 					echo " segue ";
 					set_shared_database_schema();#AQUI NAO PODE SETAR QUANDO VAI COMPLETAR O PRODUTO
 				}
-			} 
+			} else {
+				if($debug_force)
+				echo " segue ";
+				set_shared_database_schema();#AQUI NAO PODE SETAR QUANDO VAI COMPLETAR O PRODUTO
+			}
 			
 
 			$types_dont_need_cat_filter = array("page", "nav_menu_item", "notknow_REMOVED", "attachment");
