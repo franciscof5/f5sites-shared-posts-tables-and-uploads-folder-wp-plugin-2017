@@ -11,7 +11,7 @@
  */
 
 global $debug_force;
-#$debug_force = true;
+$debug_force = true;
 function is_blog()
 {
     return ( is_home() || is_single() || is_category() || is_archive() || is_front_page() || strpos($_SERVER['REQUEST_URI'], "blog") );
@@ -63,9 +63,10 @@ if(!is_network_admin()) {
 	if(!is_page() || is_blog())
 	add_action( 'pre_get_posts', 'force_database_aditional_tables_share', 10, 2 );//FOR BLOG POSTS #NEEDED IN EVERY BLOG ROOT
 	#add_action( 'wp_before_admin_bar_render', 'die' );
+	add_action( 'plugins_loaded', 'force_database_aditional_tables_share', 10, 2);
+	#if(!is_admin()) {
 
-	if(!is_admin()) {
-		$inPageCrateTeams = strpos($_SERVER['REQUEST_URI'], "create");
+		/*$inPageCrateTeams = strpos($_SERVER['REQUEST_URI'], "create");
 		if(!$inPageCrateTeams) {	
 			
 			if($debug_force)
@@ -83,22 +84,23 @@ if(!is_network_admin()) {
 			if($debug_force)
 				echo " the page has create on url ";
 			add_action( 'plugins_loaded', 'force_database_aditional_tables_share', 10, 2 );
-		}
-	} else {
+		}*/
+	#} else {
 		//in admin always share
+		if(is_multisite() && is_admin())
 		add_action( 'switch_blog', 'force_database_aditional_tables_share', 10, 2 );#ADMIN-BAR cant be disabled in ADMIN, because of it that action must be enabled
 
 		#BUG BUSCA POST EM TODOS OS (sub)BLOGS #TODO: achar o filtro adequado #SEPARANDO SUBSCRIPTIONS em focalizador deixa comentado
 		
 		#add_action( 'pre_get_posts', 'force_database_aditional_tables_share', 10, 2 );//FOR BLOG POSTS #NEEDED IN EVERY BLOG ROOT
 
-		add_action( 'plugins_loaded', 'force_database_aditional_tables_share', 10, 2 );
+		#add_action( 'plugins_loaded', 'force_database_aditional_tables_share', 10, 2 );
 		#global $VIEW_ORDER_FORCE_ANULATE_DATABASE_SHARE;
 		#$VIEW_ORDER_FORCE_ANULATE_DATABASE_SHARE=true;		
 		##### PUBLICANDO PRODUTOS dando erro
 		#add_action( 'woocommerce_loaded', 'force_database_aditional_tables_share', 10, 2 );
 		#add_action( 'switch_blog', 'force_database_aditional_tables_share', 10, 2 );#ESSA MERDA ERA USADA NO ADMIN_BAR, POR ISSO PEGAVA CADA BLOG
-	}
+	#}
 
 	//shared upload dir, comment to un-share
 	add_filter( 'upload_dir', 'shared_upload_dir' );
@@ -425,7 +427,16 @@ function force_database_aditional_tables_share($query) {
 		#$type="notknow";#(post or page problably, but maybe menu)
 	}
 	$types_shop_order = array("shop_order", "shop_order_refund", "customize_changeset", "subscription_NONO");
-	if(in_array($type, $types_shop_order)) {
+
+	if($debug_force)
+	echo " type: ";
+	if($debug_force)
+	var_dump($type);
+	if($debug_force)
+	echo ", in array types not shared: ".(in_array($type, $types_not_shared) ? "NOT-SHARED" : "YES-SHARED").", last_type: ".$last_type . " | ";
+
+	if(in_array($type, $types_shop_order) || in_array($type[0], $types_shop_order)) {
+		#$type[0] => em alguns casos vem 2 tipos, mas o primeiro eh shop_order
 		if($debug_force)
 		echo " EH DO TIPO SHOP_ORDER ";
 		force_woo_type();
@@ -453,8 +464,7 @@ function force_database_aditional_tables_share($query) {
 			#echo " plugin SHOP_ORDER nao ativado. ";
 	#}
 	
-	if($debug_force)
-	echo " type: ".$type. ", in array types not shared: ".(in_array($type, $types_not_shared) ? "NOT-SHARED" : "YES-SHARED").", last_type: ".$last_type . " | ";
+	
 	#echo "<hr />";
 	#if($last_type=="notknow") {
 		if(!in_array($type, $types_not_shared)) {
