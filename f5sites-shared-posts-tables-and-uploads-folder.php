@@ -799,7 +799,7 @@ function create_separated_woo_table_for_prefix_then_return() {
 	global $debug_force;
 	if($debug_force)
 	echo " create_separated_woo_table_for_prefix_then_return(); ";
-	return;
+	#return;
 	global $wpdb;
 	#
 	$table_woo_posts	= "6woo_".$wpdb->prefix."shop_order_posts";
