@@ -11,7 +11,9 @@
  */
 
 global $debug_force;
+if(hostname()=="note-samsung")#NEVER ENABLE DEBUG IN PRODUCTION SERVER
 $debug_force = true;
+
 function is_blog()
 {
     return ( is_home() || is_single() || is_category() || is_archive() || is_front_page() || strpos($_SERVER['REQUEST_URI'], "blog") );
