@@ -142,9 +142,9 @@ if(!is_network_admin()) {
 		#add_action('woocommerce_before_shop_order_refund_object_save', 'force_woo_type');
 		#do_action( '' . $this->object_type . '_object_save', $this, $this->data_store );
 		#
-		add_action("get_orders_F5SITES_inserted_hook", "force_woo_type", 10, 2);
-		add_action("set_product_id_F5SITES_HOOK", "set_shared_database_schema", 10, 2); #SIM, PRECISA VOLTAR PARA PEGAR O PRODUTO NOS POSTS SHARED
-		add_action("get_order_report_data_F5SITES_HOOK", "force_woo_type", 10, 2);		# parece que precisa ser mega_ #pomodoros nao era mega_
+		add_action("get_orders_hook", "force_woo_type", 10, 2);
+		add_action("set_product_id_hook", "set_shared_database_schema", 10, 2); #SIM, PRECISA VOLTAR PARA PEGAR O PRODUTO NOS POSTS SHARED
+		add_action("get_order_report_data_hook", "force_woo_type", 10, 2);		# parece que precisa ser mega_ #pomodoros nao era mega_
 	}
 }
 
@@ -484,12 +484,12 @@ function force_database_aditional_tables_share($query) {
 					if($debug_force)
 					echo " completando uma ordem, precisa retornar ";
 					return;
-				} 	
-			} else {
-				if($debug_force)
-				echo " segue ";
-				set_shared_database_schema();#AQUI NAO PODE SETAR QUANDO VAI COMPLETAR O PRODUTO
-			}
+				} else {
+					if($debug_force)
+					echo " segue ";
+					set_shared_database_schema();#AQUI NAO PODE SETAR QUANDO VAI COMPLETAR O PRODUTO
+				}
+			} 
 			
 
 			$types_dont_need_cat_filter = array("page", "nav_menu_item", "notknow_REMOVED", "attachment");
