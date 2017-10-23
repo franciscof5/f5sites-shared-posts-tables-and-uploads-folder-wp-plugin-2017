@@ -11,8 +11,8 @@
  */
 
 global $debug_force;
-if(hostname()=="note-samsung")#NEVER ENABLE DEBUG IN PRODUCTION SERVER
-$debug_force = true;
+#if(gethostname()=="note-samsung")$debug_force = true;#NEVER ENABLE DEBUG IN PRODUCTION SERVER
+
 
 function is_blog()
 {
@@ -130,12 +130,18 @@ if(!is_network_admin()) {
 		#add_action('before_woocommerce_init', 'force_database_aditional_tables_share', 10, 2);
 		#add_action('woocommerce_after_checkout_validation', 'force_database_aditional_tables_share', 10, 2);
 		#add_action('woocommerce_view_order', 'force_database_aditional_tables_share', 10, 2);
-
+		#woocommerce_create_refund
 		#HOOKS PARA TESTAR
 		#woocommerce_checkout_process
 
 		#SHOP_ORDERS: HOOKS NECESSARIOS PARA SEPARAR (hooks F5SITES precisam ser inseridos manualmente (ainda))
 		add_action('woocommerce_checkout_create_order', 'mega_force_woo_type');
+		#refund_payment
+		add_action('woocommerce_before_order_object_save', 'force_woo_type');
+		#add_action('woocommerce_before_refund_payment_object_save', 'force_woo_type');
+		#add_action('woocommerce_before_shop_order_refund_object_save', 'force_woo_type');
+		#do_action( '' . $this->object_type . '_object_save', $this, $this->data_store );
+		#
 		add_action("get_orders_F5SITES_inserted_hook", "force_woo_type", 10, 2);
 		add_action("set_product_id_F5SITES_HOOK", "set_shared_database_schema", 10, 2); #SIM, PRECISA VOLTAR PARA PEGAR O PRODUTO NOS POSTS SHARED
 		add_action("get_order_report_data_F5SITES_HOOK", "force_woo_type", 10, 2);		# parece que precisa ser mega_ #pomodoros nao era mega_
