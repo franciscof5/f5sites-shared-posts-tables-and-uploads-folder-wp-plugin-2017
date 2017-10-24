@@ -93,7 +93,7 @@ if(!is_network_admin()) {
 		}*/
 	#} else {
 		//in admin always share
-		if(is_multisite() && is_admin())
+		if(is_multisite())# && is_admin()
 			add_action( 'switch_blog', 'force_database_aditional_tables_share', 10, 2 );#ADMIN-BAR cant be disabled in ADMIN, because of it that action must be enabled
 		else
 			add_action( 'wp_loaded', 'force_database_aditional_tables_share', 10, 2 );
