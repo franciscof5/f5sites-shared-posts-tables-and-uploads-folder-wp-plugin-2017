@@ -99,7 +99,7 @@ if(!is_network_admin()) {
 			add_action( 'wp_loaded', 'force_database_aditional_tables_share', 10, 2 );
 		#
 		#widgets_init
-		#add_action( 'widgets_init', 'set_shared_database_schema' );
+		#add_action( 'pre_get_sites', 'force_database_aditional_tables_share' );
 		#BUG BUSCA POST EM TODOS OS (sub)BLOGS #TODO: achar o filtro adequado #SEPARANDO SUBSCRIPTIONS em focalizador deixa comentado
 		
 		#add_action( 'pre_get_posts', 'force_database_aditional_tables_share', 10, 2 );//FOR BLOG POSTS #NEEDED IN EVERY BLOG ROOT
