@@ -65,8 +65,11 @@ if(!is_network_admin()) {
 	#
 	if(!is_page() || is_blog())
 	add_action( 'pre_get_posts', 'force_database_aditional_tables_share', 10, 2 );//FOR BLOG POSTS #NEEDED IN EVERY BLOG ROOT
+	
+	#add_action( 'plugins_loaded', 'force_database_aditional_tables_share', 10, 2);
+
 	#add_action( 'wp_before_admin_bar_render', 'die' );
-	add_action( 'plugins_loaded', 'force_database_aditional_tables_share', 10, 2);
+	
 	#if(!is_admin()) {
 
 		/*$inPageCrateTeams = strpos($_SERVER['REQUEST_URI'], "create");
@@ -93,7 +96,10 @@ if(!is_network_admin()) {
 		if(is_multisite() && is_admin())
 			add_action( 'switch_blog', 'force_database_aditional_tables_share', 10, 2 );#ADMIN-BAR cant be disabled in ADMIN, because of it that action must be enabled
 		else
-			add_action( 'before_woocommerce_init', 'force_database_aditional_tables_share', 10, 2 );
+			add_action( 'wp_loaded', 'force_database_aditional_tables_share', 10, 2 );
+		#
+		#widgets_init
+		#add_action( 'widgets_init', 'set_shared_database_schema' );
 		#BUG BUSCA POST EM TODOS OS (sub)BLOGS #TODO: achar o filtro adequado #SEPARANDO SUBSCRIPTIONS em focalizador deixa comentado
 		
 		#add_action( 'pre_get_posts', 'force_database_aditional_tables_share', 10, 2 );//FOR BLOG POSTS #NEEDED IN EVERY BLOG ROOT
