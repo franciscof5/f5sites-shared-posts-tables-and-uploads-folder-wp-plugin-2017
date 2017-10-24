@@ -59,6 +59,7 @@ if(!is_network_admin()) {
 	#echo is_home();
 	#var_dump(is_page());die;
 	#if(is_blog())
+	#if(!$debug_force)#TO ACTIVATE QUERY-MONITOR (when available)
 	show_admin_bar( false );
 	#add_filter('is_admin_bar_showing', '__return_false'); 
 	#
@@ -90,8 +91,9 @@ if(!is_network_admin()) {
 	#} else {
 		//in admin always share
 		if(is_multisite() && is_admin())
-		add_action( 'switch_blog', 'force_database_aditional_tables_share', 10, 2 );#ADMIN-BAR cant be disabled in ADMIN, because of it that action must be enabled
-
+			add_action( 'switch_blog', 'force_database_aditional_tables_share', 10, 2 );#ADMIN-BAR cant be disabled in ADMIN, because of it that action must be enabled
+		else
+			add_action( 'before_woocommerce_init', 'force_database_aditional_tables_share', 10, 2 );
 		#BUG BUSCA POST EM TODOS OS (sub)BLOGS #TODO: achar o filtro adequado #SEPARANDO SUBSCRIPTIONS em focalizador deixa comentado
 		
 		#add_action( 'pre_get_posts', 'force_database_aditional_tables_share', 10, 2 );//FOR BLOG POSTS #NEEDED IN EVERY BLOG ROOT
