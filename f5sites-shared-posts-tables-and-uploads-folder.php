@@ -1,5 +1,5 @@
 <?php
-/**
+/* 
  * Plugin Name: F5 Sites | Shared Posts Tables & Uploads Folder
  * Plugin URI: https://www.f5sites.com/software/wordpress/f5sites-shared-posts-tables-and-uploads-folder/
  * Description: Hacks WordPress databases, sharing posts and taxonomies tables for multiple wp install under the same database, by default wp only can share tables users and usermeta. Made for use in fnetwor
@@ -10,14 +10,15 @@
  * License: GPLv3
  */
 
-global $debug_force;
+#global $debug_force;
 #if(gethostname()=="note-samsung")$debug_force = true;#NEVER ENABLE DEBUG IN PRODUCTION SERVER
 
 
-function is_blog()
-{
+function is_blog() {
+	#
     return ( is_home() || is_single() || is_category() || is_archive() || is_front_page() || strpos($_SERVER['REQUEST_URI'], "blog") );
 }
+
 if(!is_network_admin()) {
 	#echo " vamos regacar as mangas...";
 	#if ( !is_woocommerce() ) {
@@ -115,7 +116,7 @@ if(!is_network_admin()) {
 	//shared upload dir, comment to un-share
 	add_filter( 'upload_dir', 'shared_upload_dir' );
 	//
-	add_filter( 'nav_menu_link_attributes', 'filter_function_name', 10, 3 );
+	#add_filter( 'nav_menu_link_attributes', 'filter_function_name', 10, 3 );#TODO: need?
 	#Work in progress for buddypress integration, some problems might occur with sensitivy user data, like user_blogs table, making impossible to cross-share between multiple installs, but it is a good start point
 	#add_action( 'bp_loaded', 'buddypress_tables_share', 10, 2 );
 	#add_action( 'wp_insert_post', 'force_database_aditional_tables_share', 20, 2 );
@@ -158,11 +159,11 @@ if(!is_network_admin()) {
 
 
 
-function filter_function_name( $atts, $item, $args ) {
+/*function filter_function_name( $atts, $item, $args ) {
     // Manipulate attributes
     //var_dump($args);
     return $atts;
-}
+}*/
 
 function set_shared_database_schema() {
 	global $wpdb;
@@ -992,6 +993,3 @@ function shared_upload_dir( $dirs ) {
 
     return $dirs;
 }
-
-?>
-
