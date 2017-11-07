@@ -64,7 +64,9 @@ if(!is_network_admin()) {
 	show_admin_bar( false );
 	#add_filter('is_admin_bar_showing', '__return_false'); 
 	#
-	if(!is_page() || is_blog())
+	
+	#if(is_blog())
+	#if(!is_page() || is_blog())
 	add_action( 'pre_get_posts', 'force_database_aditional_tables_share', 10, 2 );//FOR BLOG POSTS #NEEDED IN EVERY BLOG ROOT
 	
 	#add_action( 'plugins_loaded', 'force_database_aditional_tables_share', 10, 2);
@@ -154,6 +156,10 @@ if(!is_network_admin()) {
 		add_action("get_orders_hook", "force_woo_type", 10, 2);
 		add_action("set_product_id_hook", "set_shared_database_schema", 10, 2); #SIM, PRECISA VOLTAR PARA PEGAR O PRODUTO NOS POSTS SHARED
 		add_action("get_order_report_data_hook", "force_woo_type", 10, 2);		# parece que precisa ser mega_ #pomodoros nao era mega_
+	}
+	{
+		#cf7 wpcf7_contact_form
+		#EM FUNCIONTS.PHP DO TEMA SISTEMA-FOCALIZADOR-JAVASCRIPT
 	}
 }
 
@@ -503,8 +509,7 @@ function force_database_aditional_tables_share($query) {
 				echo " segue ";
 				set_shared_database_schema();#AQUI NAO PODE SETAR QUANDO VAI COMPLETAR O PRODUTO
 			}
-			
-
+			#
 			$types_dont_need_cat_filter = array("page", "nav_menu_item", "notknow_REMOVED", "attachment");
 			$types_dont_need_cat_filter = array_merge($types_dont_need_cat_filter, $types_shop_order);
 
@@ -531,8 +536,26 @@ function force_database_aditional_tables_share($query) {
 
 		}
 	#}
+		#filter_posts_by_cat($query);
+		/*$types_dont_need_cat_filter = array("page1111", "nav_menu_item", "notknow_REMOVED", "attachment");
+			$types_dont_need_cat_filter = array_merge($types_dont_need_cat_filter, $types_shop_order);
+
+			if($type!="page" and $type!="nav_menu_item") {
+			#if(!in_array($type, $types_dont_need_cat_filter)) {
+				if($debug_force)
+				echo " APLICANDO FILTRO DE CATEGORIA ".(!in_array($type, $types_shop_order));
+				if($debug_force)
+				echo "$type precisa de filtro de categoria";
+
+				#if(!function_exists("is_woocommerce")) {
+					#if($debug_force)
+					#echo " naoehwoo, aplica filtro ";
+					filter_posts_by_cat($query);
+				#}
+				
+			}*/
 	#var_dump(debug_backtrace());
-	
+	#filter_posts_by_cat($query);
 	#var_dump($wpdb);
 	#if($last_type!=NULL)
 	#die;
