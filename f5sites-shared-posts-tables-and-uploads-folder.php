@@ -30,7 +30,7 @@ if(!is_network_admin()) {
 	add_action( 'woocommerce_loaded', 'force_database_aditional_tables_share', 10, 2 );
 	add_action( 'plugins_loaded', 'force_database_aditional_tables_share', 10, 2 );
 	add_action( 'setup_theme', 'force_database_aditional_tables_share', 10, 2 );
-	add_action( 'pre_get_sites', 'force_database_aditional_tables_share', 10, 2 );
+	
 	add_action( 'woocommerce_integrations_init', 'force_database_aditional_tables_share', 10, 2 );
 	add_action( 'register_sidebar', 'force_database_aditional_tables_share', 10, 2 );*/
 	//add_action( 'before_woocommerce_init', 'force_database_aditional_tables_share', 10, 2 );
@@ -67,6 +67,7 @@ if(!is_network_admin()) {
 	
 	#if(is_blog())
 	#if(!is_page() || is_blog())
+	#add_action( 'pre_get_sites', 'force_database_aditional_tables_share', 10, 2 );
 	add_action( 'pre_get_posts', 'force_database_aditional_tables_share', 10, 2 );//FOR BLOG POSTS #NEEDED IN EVERY BLOG ROOT
 	
 	#add_action( 'plugins_loaded', 'force_database_aditional_tables_share', 10, 2);
@@ -96,10 +97,15 @@ if(!is_network_admin()) {
 		}*/
 	#} else {
 		//in admin always share
-		if(is_multisite())# && is_admin()
-			add_action( 'switch_blog', 'force_database_aditional_tables_share', 10, 2 );#ADMIN-BAR cant be disabled in ADMIN, because of it that action must be enabled
-		else
-			add_action( 'wp_loaded', 'force_database_aditional_tables_share', 10, 2 );
+
+		if(is_admin()) {
+			if(is_multisite())# && is_admin()
+				add_action( 'switch_blog', 'force_database_aditional_tables_share', 10, 2 );#ADMIN-BAR cant be disabled in ADMIN, because of it that action must be enabled
+			else
+				add_action( 'wp_loaded', 'force_database_aditional_tables_share', 10, 2 );
+		}	
+
+		add_action( 'init', 'set_shared_database_schema', 8, 2 );
 		#
 		#widgets_init
 		#add_action( 'pre_get_sites', 'force_database_aditional_tables_share' );
@@ -107,7 +113,9 @@ if(!is_network_admin()) {
 		
 		#add_action( 'pre_get_posts', 'force_database_aditional_tables_share', 10, 2 );//FOR BLOG POSTS #NEEDED IN EVERY BLOG ROOT
 
-		#add_action( 'plugins_loaded', 'force_database_aditional_tables_share', 10, 2 );
+		
+		#add_action( 'init', 'register_for_second');
+
 		#global $VIEW_ORDER_FORCE_ANULATE_DATABASE_SHARE;
 		#$VIEW_ORDER_FORCE_ANULATE_DATABASE_SHARE=true;		
 		##### PUBLICANDO PRODUTOS dando erro
@@ -170,6 +178,7 @@ if(!is_network_admin()) {
     //var_dump($args);
     return $atts;
 }*/
+#function register_for_second() {
 
 function set_shared_database_schema() {
 	global $wpdb;
@@ -259,9 +268,11 @@ function set_shared_database_schema() {
 	
 }
 
-function force_woo_type() {
+function force_woo_type() {	
 	global $wpdb;
 	global $debug_force;
+	if($debug_force)
+		echo " force_woo_type();, ";
 	#$debug_force=true;
 	#global $woo_priority;
 	#$woo_priority=true;
@@ -451,6 +462,8 @@ function force_database_aditional_tables_share($query) {
 	}
 	$types_shop_order = array("shop_order", "shop_order_refund", "customize_changeset", "subscription_NONO");
 
+
+
 	if($debug_force)
 	echo " type: ";
 	if($debug_force)
@@ -493,7 +506,7 @@ function force_database_aditional_tables_share($query) {
 		if(!in_array($type, $types_not_shared)) {
 			#YES-SHARED
 			if($debug_force)
-			echo "$type is shared";
+			var_dump("is shared");
 			if(isset($_GET['action'])) {
 				if($_GET['action']=="woocommerce_mark_order_status") {
 					if($debug_force)
@@ -626,6 +639,9 @@ function force_database_aditional_tables_share($query) {
 }
 
 function filter_posts_by_cat($queryReceived) {
+	global $debug_force;
+	if($debug_force)
+		echo " filter_posts_by_cat();, ";
 	global $wp_the_query;
 	global $query;
 	
@@ -637,14 +653,18 @@ function filter_posts_by_cat($queryReceived) {
 	//$query = $wp_the_query;
 
 	if($queryReceived==NULL) {
+		if($debug_force)echo " queryReceived null ";
 		if($wp_the_query!=NULL) {
+			if($debug_force)echo " wp_the_query NOT null ";
 			$query = $wp_the_query;
 		} else if($query!=NULL) {
+			if($debug_force)echo " query NOT null ";
 			$query = $query;
 		} else {
 			return;
 		}
 	} else {
+		if($debug_force)echo " query=queryReceived ";
 		$query = $queryReceived;
 	}
 		//var_dump($query);
@@ -715,7 +735,8 @@ function filter_posts_by_cat($queryReceived) {
 			
 			//if($product_tag!="")
 			//	$query->set( 'product_tag', $product_tag );	
-			//var_dump("<br /> type: ".$type. ", <br /> is_shop: ".is_shop(). ", <br /> domain: ".$current_server_name. ", <br /> is_woocommerce(): ".is_woocommerce(). ", <br /> pdfcat: ". ", <br /> gettype: ".gettype($query).", <br /> current_server_name_shared_category_id:".$current_server_name_shared_category_id.", <br /> category:".$category.", <br /> is_category:".$is_category.", <br /> typequery:".gettype($query)." <br />product_tag:".$product_tag);
+			if($debug_force)
+			var_dump("<br /> type: " . ", <br /> is_shop: ".is_shop(). ", <br /> domain: ".$current_server_name. ", <br /> is_woocommerce(): ".is_woocommerce(). ", <br /> pdfcat: ". ", <br /> gettype: ".gettype($query).", <br /> current_server_name_shared_category_id:".$current_server_name_shared_category_id.", <br /> category:".$category.", <br /> is_category:".$is_category.", <br /> typequery:".gettype($query)." <br />product_tag:".$product_tag);
 			
 			#if($category!="") {
 				
@@ -729,7 +750,8 @@ function filter_posts_by_cat($queryReceived) {
 					#var_dump($query);
 
 					if($product_tag!="") {
-						#echo ". Setou a tag: $product_tag";
+						if($debug_force)
+						echo ". Setou a tag: $product_tag";
 						$query->set( 'product_tag', $product_tag );
 					} else {
 						#echo ". Setou a categoria id: $current_server_name_shared_category_id";
@@ -738,7 +760,8 @@ function filter_posts_by_cat($queryReceived) {
 						#echo " [reverter_filtro_de_categoria_pra_forcar_funcionamento=$reverter_filtro_de_categoria_pra_forcar_funcionamento]";
 
 						if(!$reverter_filtro_de_categoria_pra_forcar_funcionamento) {
-							#echo " CATEGORIA FILTRADA";
+							if($debug_force)
+							echo " CATEGORIA FILTRADA";
 							$query->set( 'cat', $current_server_name_shared_category_id );	
 						} else {
 							#echo "Devido ao cancelamento do filtro de categoria, todas as categorias serao exibidas";
@@ -815,6 +838,9 @@ function buddypress_tables_share() {
 
 function revert_database_schema() {
 	#
+	global $debug_force;
+	if($debug_force)
+		echo " revert_database_schema();, ";
 	global $wpdb;
 	#in wp-config and wp-settings.php
 	/*if($prefix=="") {
@@ -1016,3 +1042,6 @@ function shared_upload_dir( $dirs ) {
 
     return $dirs;
 }
+
+
+/* WOO SIDEBARS */
