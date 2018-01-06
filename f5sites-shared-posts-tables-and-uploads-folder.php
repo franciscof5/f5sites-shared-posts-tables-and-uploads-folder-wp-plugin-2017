@@ -10,8 +10,7 @@
  * License: GPLv3
  */
 
-#global $debug_force;
-#if(gethostname()=="note-samsung")$debug_force = true;#NEVER ENABLE DEBUG IN PRODUCTION SERVER
+#global $debug_force; if(gethostname()=="note-samsung")$debug_force = true;#NEVER ENABLE DEBUG IN PRODUCTION SERVER
 
 
 function is_blog() {
@@ -369,8 +368,11 @@ function force_database_aditional_tables_share($query) {
 		if($debug_force)
 		echo " estavas prestes a refazer o schema, mas atendo ao pedido de retornar please_dont_change_wpdb_woo_separated_tables: $please_dont_change_wpdb_woo_separated_tables ";
 		#die;
-		if($reverter_filtro_de_categoria_pra_forcar_funcionamento)
-			echo " cancelando pedido, sidebar exigiu ";
+		if($reverter_filtro_de_categoria_pra_forcar_funcionamento) {
+			#revert_database_schema();
+			if($debug_force)
+			echo " cancelando pedido, outra funcao exigiu nao usar posts compartilhados, por ex pomodoros_posts ";
+		}
 		else
 			return;
 	}
