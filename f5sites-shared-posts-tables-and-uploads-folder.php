@@ -12,11 +12,11 @@
 
 #global $debug_force; if(gethostname()=="note-samsung")$debug_force = true;#NEVER ENABLE DEBUG IN PRODUCTION SERVER
 
-
+/*
 function is_blog() {
 	#
     return ( is_home() || is_single() || is_category() || is_archive() || is_front_page() || strpos($_SERVER['REQUEST_URI'], "blog") );
-}
+}*/
 
 if(!is_network_admin()) {
 	#echo " vamos regacar as mangas...";
@@ -60,7 +60,7 @@ if(!is_network_admin()) {
 	#var_dump(is_page());die;
 	#if(is_blog())
 	#if(!$debug_force)#TO ACTIVATE QUERY-MONITOR (when available)
-	show_admin_bar( false );
+	#show_admin_bar( false );
 	#add_filter('is_admin_bar_showing', '__return_false'); 
 	#
 	
@@ -1045,5 +1045,58 @@ function shared_upload_dir( $dirs ) {
     return $dirs;
 }
 
+/*NAVIGATION LINKS*/
+
+function print_blog_nav_links($post) {
+	?>
+	<div class="navigation">
+			<?php
+				#$post_id = $post->ID; // Get current post ID
+				#$cat = get_the_category(); 
+				#$current_cat_id = $cat[0]->cat_ID; // Get current Category ID 
+				$current_cat_id = get_cat_ID($_SERVER["HTTP_HOST"]);
+
+				$args = array('category'=>$current_cat_id,'orderby'=>'post_date','order'=> 'DESC');
+				$posts = get_posts($args);
+				// Get IDs of posts retrieved by get_posts function
+				$ids = array();
+				foreach ($posts as $thepost) {
+				    $ids[] = $thepost->ID;
+				}
+				// Get and Echo the Previous and Next post link within same Category
+				$index = array_search($post->ID, $ids);
+				if(($index-1)>=0)
+				$prev_post = $ids[$index-1];
+				if(($index+1)<count($ids))
+				$next_post = $ids[$index+1];
+				?>
+
+			<div class="alignright">
+			<?php if (!empty($prev_post)){ ?> <a class="previous-post" rel="prev" href="<?php echo get_permalink($prev_post) ?>"> <?php echo get_the_title($prev_post); ?>&rarr;</a> (<?php echo human_time_diff( get_the_time('U', $prev_post), current_time('timestamp') ) . ' atrás'; ?>)  <?php } ?>
+			</div>
+
+			<div class="alignleft">
+			<?php if (!empty($next_post)){ ?> <a class="next-post" rel="next" href="<?php echo get_permalink($next_post) ?>"> &larr; <?php echo get_the_title($next_post); ?> </a> (<?php echo human_time_diff( get_the_time('U', $next_post), current_time('timestamp') ) . ' atrás'; ?>) <?php } ?>
+			</div>
+			
+					<?php	#if(function_exists('force_database_aditional_tables_share')) {
+			       			#force_database_aditional_tables_share();
+			       		#}
+			       		#"328,344,339,409"
+			       		#previous_post_link('; %link', '%title', true);
+						#next_post_link('%link &raquo;', '%title', true);
+			       	?>
+					<!--div class="alignright"">
+						<?php next_post_link('%link >> ', '%title', TRUE); ?>
+						<?php #next_posts_link( __( '&larr; Previous Entries', 'buddypress' ) ) ?>
+					</div>
+					<div class="alignleft">
+						<?php previous_post_link('%link << ', '%title', TRUE);
+						#previous_posts_link( __( 'Next Entries &rarr;', 'buddypress' ) ) ?>
+					</div-->
+
+				</div>
+	<?php
+}
 
 /* WOO SIDEBARS */
