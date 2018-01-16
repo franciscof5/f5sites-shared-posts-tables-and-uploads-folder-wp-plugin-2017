@@ -12,11 +12,11 @@
 
 #global $debug_force; if(gethostname()=="note-samsung")$debug_force = true;#NEVER ENABLE DEBUG IN PRODUCTION SERVER
 
-/*
+
 function is_blog() {
 	#
     return ( is_home() || is_single() || is_category() || is_archive() || is_front_page() || strpos($_SERVER['REQUEST_URI'], "blog") );
-}*/
+}
 
 if(!is_network_admin()) {
 	#echo " vamos regacar as mangas...";
@@ -60,10 +60,12 @@ if(!is_network_admin()) {
 	#var_dump(is_page());die;
 	#if(is_blog())
 	#if(!$debug_force)#TO ACTIVATE QUERY-MONITOR (when available)
-	#show_admin_bar( false );
+	
 	#add_filter('is_admin_bar_showing', '__return_false'); 
 	#
 	
+	show_admin_bar( false ); #EM WP-MULTISITE ELE ENROSCA
+
 	#if(is_blog())
 	#if(!is_page() || is_blog())
 	#add_action( 'pre_get_sites', 'force_database_aditional_tables_share', 10, 2 );
