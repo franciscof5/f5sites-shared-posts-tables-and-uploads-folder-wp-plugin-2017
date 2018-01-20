@@ -64,7 +64,9 @@ if(!is_network_admin()) {
 	#add_filter('is_admin_bar_showing', '__return_false'); 
 	#
 	
-	show_admin_bar( false ); #EM WP-MULTISITE ELE ENROSCA
+	
+	show_admin_bar( false ); #EM WP-MULTISITE ELE ENROSCA#######################################333
+
 
 	#if(is_blog())
 	#if(!is_page() || is_blog())
@@ -740,12 +742,18 @@ function filter_posts_by_cat($queryReceived) {
 			//if($product_tag!="")
 			//	$query->set( 'product_tag', $product_tag );	
 			if($debug_force)
-			var_dump("<br /> type: " . ", <br /> is_shop: ".is_shop(). ", <br /> domain: ".$current_server_name. ", <br /> is_woocommerce(): ".is_woocommerce(). ", <br /> pdfcat: ". ", <br /> gettype: ".gettype($query).", <br /> current_server_name_shared_category_id:".$current_server_name_shared_category_id.", <br /> category:".$category.", <br /> is_category:".$is_category.", <br /> typequery:".gettype($query)." <br />product_tag:".$product_tag);
+			var_dump("<br /> type: " . ", <br /> is_shop: ".is_shop(). ", <br /> domain: ".$current_server_name. ", <br /> is_woocommerce(): ".is_woocommerce(). ", <br /> pdfcat: ". ", <br /> gettype: ".gettype($query).", <br /> current_server_name_shared_category_id:".$current_server_name_shared_category_id.", <br /> category:".$category.", <br /> is_category:".$is_category.", <br /> typequery:".gettype($query)." <br />product_tag:".$product_tag.", <br />is_tag:".is_tag());
 			
 			#if($category!="") {
 				
 				//$query->set( 'cat', $current_server_name_shared_category_id );
 				//$query->set( 'product_cat', $current_server_name_shared_category_id );
+
+			/*if(is_tag()) {
+				#echo $_SERVER['SERVER_NAME'];
+				if($_SERVER['SERVER_NAME']=="www.pomodoros.com.br")
+				revert_database_schema();
+			}*/
 			
 			if($category=="") {
 				if(!is_admin()) {
