@@ -17,7 +17,7 @@ function is_blog() {
 	#
     return ( is_home() || is_single() || is_category() || is_archive() || is_front_page() || strpos($_SERVER['REQUEST_URI'], "blog") );
 }
-
+$current_server_name = $_SERVER['SERVER_NAME'];
 if(!is_network_admin()) {
 	#echo " vamos regacar as mangas...";
 	#if ( !is_woocommerce() ) {
@@ -64,7 +64,8 @@ if(!is_network_admin()) {
 	#add_filter('is_admin_bar_showing', '__return_false'); 
 	#
 	
-	
+	#IF DOMAIN FOCALIZADOR>COM>BR E PROJECTIMER
+	if($current_server_name=="www.focalizador.com.br" || $current_server_name=="www.projectimer.com")
 	show_admin_bar( false ); #EM WP-MULTISITE ELE ENROSCA#######################################333
 
 
@@ -109,6 +110,9 @@ if(!is_network_admin()) {
 		}	
 
 		add_action( 'init', 'set_shared_database_schema', 8, 2 );
+		//
+		//add_action( 'dpa_init', 'set_shared_database_schema', 8, 2 );
+		
 		#
 		#widgets_init
 		#add_action( 'pre_get_sites', 'force_database_aditional_tables_share' );
@@ -529,7 +533,7 @@ function force_database_aditional_tables_share($query) {
 				set_shared_database_schema();#AQUI NAO PODE SETAR QUANDO VAI COMPLETAR O PRODUTO
 			}
 			#
-			$types_dont_need_cat_filter = array("page", "nav_menu_item", "notknow_REMOVED", "attachment");
+			$types_dont_need_cat_filter = array("page", "nav_menu_item", "notknow_REMOVED", "attachment", "achievement");
 			$types_dont_need_cat_filter = array_merge($types_dont_need_cat_filter, $types_shop_order);
 
 			#if($type!="page" and $type!="nav_menu_item" and (!in_array($type, $types_shop_order))) {
@@ -677,7 +681,7 @@ function filter_posts_by_cat($queryReceived) {
 		//$query = new WP_Query($query);
 	
 	//die;
-	$current_server_name = $_SERVER['SERVER_NAME'];
+	
 	#$current_server_name = "br.f5sites.com";
 	$current_server_name_shared_category = get_category_by_slug($current_server_name);
 	//echo "1ASDASDAS";
