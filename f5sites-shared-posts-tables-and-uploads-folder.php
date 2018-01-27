@@ -17,7 +17,7 @@ function is_blog() {
 	#
     return ( is_home() || is_single() || is_category() || is_archive() || is_front_page() || strpos($_SERVER['REQUEST_URI'], "blog") );
 }
-$current_server_name = $_SERVER['SERVER_NAME'];
+
 if(!is_network_admin()) {
 	#echo " vamos regacar as mangas...";
 	#if ( !is_woocommerce() ) {
@@ -65,6 +65,7 @@ if(!is_network_admin()) {
 	#
 	
 	#IF DOMAIN FOCALIZADOR>COM>BR E PROJECTIMER
+	$current_server_name = $_SERVER['SERVER_NAME'];
 	if($current_server_name=="www.focalizador.com.br" || $current_server_name=="www.projectimer.com")
 	show_admin_bar( false ); #EM WP-MULTISITE ELE ENROSCA#######################################333
 
@@ -683,6 +684,7 @@ function filter_posts_by_cat($queryReceived) {
 	//die;
 	
 	#$current_server_name = "br.f5sites.com";
+	$current_server_name = $_SERVER['SERVER_NAME'];
 	$current_server_name_shared_category = get_category_by_slug($current_server_name);
 	//echo "1ASDASDAS";
 	
