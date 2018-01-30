@@ -66,7 +66,7 @@ if(!is_network_admin()) {
 	
 	#IF DOMAIN FOCALIZADOR>COM>BR E PROJECTIMER
 	$current_server_name = $_SERVER['SERVER_NAME'];
-	if($current_server_name=="www.focalizador.com.br" || $current_server_name=="www.projectimer.com")
+	if($current_server_name=="www.focalizador.com.br" || $current_server_name=="www.projectimer.com" || $current_server_name=="www.franciscomat.com" || $current_server_name=="br.franciscomat.com")
 	show_admin_bar( false ); #EM WP-MULTISITE ELE ENROSCA#######################################333
 
 
