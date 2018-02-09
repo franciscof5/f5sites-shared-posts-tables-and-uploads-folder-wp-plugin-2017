@@ -417,7 +417,8 @@ function force_database_aditional_tables_share($query) {
 		}
 	}
 	
-	#var_dump($query);
+	if($debug_force)
+	var_dump($query);
 	#else
 	#	return;
 	#echo $query;
@@ -489,6 +490,7 @@ function force_database_aditional_tables_share($query) {
 		force_woo_type();
 		return;
 	}
+
 	#if(function_exists("force_database_shop_order_separated_tables")) {
 		/*$types_to_ignore_and_do_nothing = array("shop_order", "shop_order_refund", "customize_changeset", "subscription");
 
@@ -656,7 +658,7 @@ function filter_posts_by_cat($queryReceived) {
 	global $wp_the_query;
 	global $query;
 	
-	//var_dump($wp_the_query);
+	#var_dump($wp_the_query);
 	//if($wp_the_query!=NULL)
 	//	$query = $wp_the_query;
 	//else
@@ -715,6 +717,25 @@ function filter_posts_by_cat($queryReceived) {
 	if(isset($query->query["product_tag"]))
 		$product_tag = $query->query["product_tag"];
 
+	$is_search = "";
+	if(isset($query->is_search))
+		$is_search = $query->is_search;
+	if($is_search) {
+		return;
+		#$reverter_filtro_de_categoria_pra_forcar_funcionamento=true;
+	}
+	if(is_tax()) {
+		return;
+		#product_brand
+	}
+	#if($query->query["is_post_type_archive"])
+	#	return;
+
+	#if(is_shop())
+	#	return;
+	#echo "AAAAAAAAAAAAAAAA:";
+	#var_dump($query->query["is_search"]);
+	#var_dump($query->is_search);
 	//else
 	//	$category = "";
 	#$is_pdf_catalog = isset($_GET["pdfcat"]);
@@ -748,7 +769,7 @@ function filter_posts_by_cat($queryReceived) {
 			//if($product_tag!="")
 			//	$query->set( 'product_tag', $product_tag );	
 			if($debug_force)
-			var_dump("<br /> type: " . ", <br /> is_shop: ".is_shop(). ", <br /> domain: ".$current_server_name. ", <br /> is_woocommerce(): ".is_woocommerce(). ", <br /> pdfcat: ". ", <br /> gettype: ".gettype($query).", <br /> current_server_name_shared_category_id:".$current_server_name_shared_category_id.", <br /> category:".$category.", <br /> is_category:".$is_category.", <br /> typequery:".gettype($query)." <br />product_tag:".$product_tag.", <br />is_tag:".is_tag());
+			var_dump("<br /> type: " . ", <br /> is_shop: ".is_shop(). ", <br /> domain: ".$current_server_name. ", <br /> is_woocommerce(): ".is_woocommerce(). ", <br /> pdfcat: ". ", <br /> gettype: ".gettype($query).", <br /> current_server_name_shared_category_id:".$current_server_name_shared_category_id.", <br /> category:".$category.", <br /> is_category:".$is_category.", <br /> typequery:".gettype($query)." <br />product_tag:".$product_tag.", <br />is_tag:".is_tag().", is_search: ".$is_search.", is_tax:".is_tax());
 			
 			#if($category!="") {
 				
@@ -772,7 +793,8 @@ function filter_posts_by_cat($queryReceived) {
 						echo ". Setou a tag: $product_tag";
 						$query->set( 'product_tag', $product_tag );
 					} else {
-						#echo ". Setou a categoria id: $current_server_name_shared_category_id";
+						if($debug_force)
+						echo ". Setou a categoria id: $current_server_name_shared_category_id";
 						
 						global $reverter_filtro_de_categoria_pra_forcar_funcionamento;
 						#echo " [reverter_filtro_de_categoria_pra_forcar_funcionamento=$reverter_filtro_de_categoria_pra_forcar_funcionamento]";
