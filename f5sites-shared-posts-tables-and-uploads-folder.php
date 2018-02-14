@@ -68,7 +68,10 @@ if(!is_network_admin()) {
 	$current_server_name = $_SERVER['SERVER_NAME'];
 	if($current_server_name=="www.focalizador.com.br" || $current_server_name=="www.projectimer.com" || $current_server_name=="www.franciscomat.com" || $current_server_name=="br.franciscomat.com")
 	show_admin_bar( false ); #EM WP-MULTISITE ELE ENROSCA#######################################333
-
+	
+	#Disabled for pesquisa child sites
+	if($current_server_name=="pesquisa.f5sites.com" && !is_main_site())
+	return;
 
 	#if(is_blog())
 	#if(!is_page() || is_blog())
@@ -666,18 +669,22 @@ function filter_posts_by_cat($queryReceived) {
 	//$query = $wp_the_query;
 
 	if($queryReceived==NULL) {
-		if($debug_force)echo " queryReceived null ";
+		if($debug_force)
+		echo " queryReceived null ";
 		if($wp_the_query!=NULL) {
-			if($debug_force)echo " wp_the_query NOT null ";
+			if($debug_force)
+			echo " wp_the_query NOT null ";
 			$query = $wp_the_query;
 		} else if($query!=NULL) {
-			if($debug_force)echo " query NOT null ";
+			if($debug_force)
+				echo " query NOT null ";
 			$query = $query;
 		} else {
 			return;
 		}
 	} else {
-		if($debug_force)echo " query=queryReceived ";
+		if($debug_force)
+			echo " query=queryReceived no null ";
 		$query = $queryReceived;
 	}
 		//var_dump($query);
@@ -728,8 +735,9 @@ function filter_posts_by_cat($queryReceived) {
 		return;
 		#product_brand
 	}
-	#if($query->query["is_post_type_archive"])
-	#	return;
+
+	if(isset($query->query["is_post_type_archive"]))
+		return;
 
 	#if(is_shop())
 	#	return;
@@ -769,7 +777,7 @@ function filter_posts_by_cat($queryReceived) {
 			//if($product_tag!="")
 			//	$query->set( 'product_tag', $product_tag );	
 			if($debug_force)
-			var_dump("<br /> type: " . ", <br /> is_shop: ".is_shop(). ", <br /> domain: ".$current_server_name. ", <br /> is_woocommerce(): ".is_woocommerce(). ", <br /> pdfcat: ". ", <br /> gettype: ".gettype($query).", <br /> current_server_name_shared_category_id:".$current_server_name_shared_category_id.", <br /> category:".$category.", <br /> is_category:".$is_category.", <br /> typequery:".gettype($query)." <br />product_tag:".$product_tag.", <br />is_tag:".is_tag().", is_search: ".$is_search.", is_tax:".is_tax());
+			var_dump("<br /> type: " . ", <br /> is_shop: ".is_shop(). ", <br /> domain: ".$current_server_name. ", <br /> is_woocommerce(): ".is_woocommerce(). ", <br /> pdfcat X: ". ", <br /> gettype: ".gettype($query).", <br /> current_server_name_shared_category_id:".$current_server_name_shared_category_id.", <br /> category:".$category.", <br /> is_category:".$is_category.", <br /> typequery:".gettype($query)." <br />product_tag:".$product_tag.", <br />is_tag:".is_tag().", is_search: ".$is_search.", is_tax:".is_tax());
 			
 			#if($category!="") {
 				
