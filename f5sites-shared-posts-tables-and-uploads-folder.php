@@ -66,12 +66,20 @@ if(!is_network_admin()) {
 	
 	#IF DOMAIN FOCALIZADOR>COM>BR E PROJECTIMER
 	$current_server_name = $_SERVER['SERVER_NAME'];
-	if($current_server_name=="www.focalizador.com.br" || $current_server_name=="www.projectimer.com" || $current_server_name=="www.franciscomat.com" || $current_server_name=="br.franciscomat.com")
+	if($current_server_name=="www.focalizador.com.br" || 
+		$current_server_name=="www.projectimer.com" || 
+		$current_server_name=="www.franciscomat.com" || 
+		$current_server_name=="br.franciscomat.com" ||
+		$current_server_name=="pesquisa.f5sites.com")
 	show_admin_bar( false ); #EM WP-MULTISITE ELE ENROSCA#######################################333
 	
 	#Disabled for pesquisa child sites
-	if($current_server_name=="pesquisa.f5sites.com" && !is_main_site())
-	return;
+
+	if($current_server_name=="pesquisa.f5sites.com" && !is_main_site()) {
+		var_dump(is_main_site());die;
+		return;
+
+	}
 
 	#if(is_blog())
 	#if(!is_page() || is_blog())
