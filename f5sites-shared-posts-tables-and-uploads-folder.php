@@ -76,7 +76,7 @@ if(!is_network_admin()) {
 	#Disabled for pesquisa child sites
 
 	if($current_server_name=="pesquisa.f5sites.com" && !is_main_site()) {
-		var_dump(is_main_site());die;
+		#var_dump(is_main_site());die;
 		return;
 
 	}
