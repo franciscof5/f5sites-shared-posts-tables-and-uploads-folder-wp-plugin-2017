@@ -122,6 +122,10 @@ if(!is_network_admin()) {
 		}	
 
 		add_action( 'init', 'set_shared_database_schema', 8, 2 );
+
+
+		#add_action( 'woocommerce_before_shop_loop', 'force_database_aditional_tables_share', 10, 2 );
+		#add_action( 'woocommerce_shortcode_before_product_loop', 'force_database_aditional_tables_share', 10, 2 );
 		//
 		//add_action( 'dpa_init', 'set_shared_database_schema', 8, 2 );
 		
@@ -165,7 +169,7 @@ if(!is_network_admin()) {
 		#add_action('woocommerce_checkout_create_order_line_item', 'set_shared_database_schema');
 		#add_action('woocommerce_check_cart_items', 'set_shared_database_schema');
 		#add_action('woocommerce_view_order', 'mega_force_woo_type', 10, 2);
-		#add_action('before_woocommerce_init', 'force_database_aditional_tables_share', 10, 2);
+		#add_action('before_woocommerce_init', 'set_shared_database_schema', 10, 2);
 		#add_action('woocommerce_after_checkout_validation', 'force_database_aditional_tables_share', 10, 2);
 		#add_action('woocommerce_view_order', 'force_database_aditional_tables_share', 10, 2);
 		#woocommerce_create_refund
@@ -183,6 +187,7 @@ if(!is_network_admin()) {
 		add_action("get_orders_hook", "force_woo_type", 10, 2);
 		add_action("set_product_id_hook", "set_shared_database_schema", 10, 2); #SIM, PRECISA VOLTAR PARA PEGAR O PRODUTO NOS POSTS SHARED
 		add_action("get_order_report_data_hook", "force_woo_type", 10, 2);		# parece que precisa ser mega_ #pomodoros nao era mega_
+		#add_action( 'woocommerce_before_shop_loop', 'force_database_aditional_tables_share' );
 	}
 	{
 		#cf7 wpcf7_contact_form
@@ -200,6 +205,7 @@ if(!is_network_admin()) {
 #function register_for_second() {
 
 function set_shared_database_schema() {
+	#var_dump(debug_backtrace());
 	global $wpdb;
 	global $debug_force;
 	global $type;
@@ -254,7 +260,7 @@ function set_shared_database_schema() {
 
 	#$types_shop_order = array("shop_order", "shop_order_refund", "customize_changeset", "subscription");
 	#echo "AJDLKAJSDLKASJ D".$type;
-	if(is_array($type))
+	if(is_array($type) && isset($type[0]))
 		$type = $type[0];
 	if($debug_force)
 	echo " ULTIMO CHECK TYPE: ".$type;
@@ -428,8 +434,8 @@ function force_database_aditional_tables_share($query) {
 		}
 	}
 	
-	if($debug_force)
-	var_dump($query);
+	#if($debug_force)
+	#var_dump($query);
 	#else
 	#	return;
 	#echo $query;
@@ -476,6 +482,11 @@ function force_database_aditional_tables_share($query) {
 		} else {
 			
 			if(!$type) {
+				if($debug_force)
+					echo " ENFIADO TIPO ";
+				#if(is_woocommerce())
+				#$type = 'product';
+				#else
 				$type="notknow";#(post or page problably, but maybe menu)
 			} else {
 				#echo "GLOBAL TYPE ".$type;
@@ -493,6 +504,9 @@ function force_database_aditional_tables_share($query) {
 	var_dump($type);
 	if($debug_force)
 	echo ", in array types not shared: ".(in_array($type, $types_not_shared) ? "NOT-SHARED" : "YES-SHARED").", last_type: ".$last_type . " | ";
+	
+	if(!isset($type[0]))
+		$type[0]='';
 
 	if(in_array($type, $types_shop_order) || in_array($type[0], $types_shop_order)) {
 		#$type[0] => em alguns casos vem 2 tipos, mas o primeiro eh shop_order
@@ -501,6 +515,7 @@ function force_database_aditional_tables_share($query) {
 		force_woo_type();
 		return;
 	}
+
 
 	#if(function_exists("force_database_shop_order_separated_tables")) {
 		/*$types_to_ignore_and_do_nothing = array("shop_order", "shop_order_refund", "customize_changeset", "subscription");
@@ -694,6 +709,7 @@ function filter_posts_by_cat($queryReceived) {
 		if($debug_force)
 			echo " query=queryReceived no null ";
 		$query = $queryReceived;
+		#var_dump($query->query['post_type']);die;
 	}
 		//var_dump($query);
 		//$query = new WP_Query($query);
@@ -715,6 +731,8 @@ function filter_posts_by_cat($queryReceived) {
 	$type="notknow";#(post or page problably)	
 	if(isset($query->query["post_type"])) 
 		$type = $query->query["post_type"];
+
+
 	//else
 		
 	
@@ -735,6 +753,7 @@ function filter_posts_by_cat($queryReceived) {
 	$is_search = "";
 	if(isset($query->is_search))
 		$is_search = $query->is_search;
+	
 	if($is_search) {
 		return;
 		#$reverter_filtro_de_categoria_pra_forcar_funcionamento=true;
@@ -747,8 +766,7 @@ function filter_posts_by_cat($queryReceived) {
 	if(isset($query->query["is_post_type_archive"]))
 		return;
 
-	#if(is_shop())
-	#	return;
+
 	#echo "AAAAAAAAAAAAAAAA:";
 	#var_dump($query->query["is_search"]);
 	#var_dump($query->is_search);
