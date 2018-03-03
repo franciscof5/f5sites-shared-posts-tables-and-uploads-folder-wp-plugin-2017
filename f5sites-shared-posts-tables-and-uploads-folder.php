@@ -10,6 +10,10 @@
  * License: GPLv3
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 #global $debug_force; if(gethostname()=="note-samsung")$debug_force = true;#NEVER ENABLE DEBUG IN PRODUCTION SERVER
 
 
@@ -17,6 +21,8 @@ function is_blog() {
 	#
     return ( is_home() || is_single() || is_category() || is_archive() || is_front_page() || strpos($_SERVER['REQUEST_URI'], "blog") );
 }
+
+require_once("woocommerce-data-store.php");
 
 if(!is_network_admin()) {
 	#echo " vamos regacar as mangas...";
@@ -177,24 +183,35 @@ if(!is_network_admin()) {
 		#woocommerce_checkout_process
 
 		#SHOP_ORDERS: HOOKS NECESSARIOS PARA SEPARAR (hooks F5SITES precisam ser inseridos manualmente (ainda))
-		add_action('woocommerce_checkout_create_order', 'mega_force_woo_type');
+		
+		#======#add_action('woocommerce_checkout_create_order', 'mega_force_woo_type');
 		#refund_payment
-		add_action('woocommerce_before_order_object_save', 'force_woo_type');
+		#======#add_action('woocommerce_before_order_object_save', 'force_woo_type');
 		#add_action('woocommerce_before_refund_payment_object_save', 'force_woo_type');
 		#add_action('woocommerce_before_shop_order_refund_object_save', 'force_woo_type');
 		#do_action( '' . $this->object_type . '_object_save', $this, $this->data_store );
 		#
-		add_action("get_orders_hook", "force_woo_type", 10, 2);
-		add_action("set_product_id_hook", "set_shared_database_schema", 10, 2); #SIM, PRECISA VOLTAR PARA PEGAR O PRODUTO NOS POSTS SHARED
-		add_action("get_order_report_data_hook", "force_woo_type", 10, 2);		# parece que precisa ser mega_ #pomodoros nao era mega_
+
+		/* ISSO ERA PRO GALAXY FOUNDER (gambis) */
+		#======#add_action("get_orders_hook", "force_woo_type", 10, 2);
+		#======#add_action("set_product_id_hook", "set_shared_database_schema", 10, 2); #SIM, PRECISA VOLTAR PARA PEGAR O PRODUTO NOS POSTS SHARED
+		#======#add_action("get_order_report_data_hook", "force_woo_type", 10, 2);		# parece que precisa ser mega_ #pomodoros nao era mega_
 		#add_action( 'woocommerce_before_shop_loop', 'force_database_aditional_tables_share' );
+
+		#add_action('woocommerce_account_view_order_endpoint', 'frr');
+		#add_action('wc_get_orders', 'force_woo_type');
+		#add_action('wc_get_order', 'force_woo_type');
+		#add_action('woocommerce_view_order', 'force_woo_type');
+		#add_action( 'woocommerce_order_details_before_order_table', 'force_woo_type');
 	}
 	{
 		#cf7 wpcf7_contact_form
 		#EM FUNCIONTS.PHP DO TEMA SISTEMA-FOCALIZADOR-JAVASCRIPT
 	}
 }
-
+function frr() {
+	die;
+}
 
 
 /*function filter_function_name( $atts, $item, $args ) {
@@ -485,16 +502,29 @@ function force_database_aditional_tables_share($query) {
 				if($debug_force)
 					echo " ENFIADO TIPO ";
 				#if(is_woocommerce())
-				#$type = 'product';
-				#else
-				$type="notknow";#(post or page problably, but maybe menu)
+				$d = ($_SERVER['REQUEST_URI']);
+				$ds = explode("/", $d);
+				if($ds[1]=="order-received" || $ds[1]=="ver-pedido") {
+					#WC()->order_factory
+					#force_woo_type();
+					#return;
+					#$type = 'product';
+					#$type="shop_order";
+					#var_dump($order);
+					#global $order;
+					#var_dump($order);
+					#die;
+				} else {
+					$type="notknow";#(post or page problably, but maybe menu)	
+				}
+				#$type="shop_order";
 			} else {
 				#echo "GLOBAL TYPE ".$type;
 			}
 		}
 		#$type="notknow";#(post or page problably, but maybe menu)
 	}
-	$types_shop_order = array("shop_order", "shop_order_refund", "customize_changeset", "subscription_NONO");
+	$types_shop_order = array("shop_order", "shop_order_refund", "customize_changeset", "subscriptio_NONO", "subscription_NONO");
 
 
 
