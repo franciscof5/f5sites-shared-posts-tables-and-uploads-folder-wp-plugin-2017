@@ -238,7 +238,7 @@ function force_database_aditional_tables_share($query) {
 	$types_not_shared = array("projectimer_focus", "projectimer_rest", "projectimer_lost");
 
 	$types_not_shared[] = "subscription";
-	
+	#$types_not_shared[] = "shop_order";
 	global $force_publish_post_not_shared;
 	if($force_publish_post_not_shared) {
 		#post NAO sera compartilhado, vai pro bd especifico (prov pomodoros_)
