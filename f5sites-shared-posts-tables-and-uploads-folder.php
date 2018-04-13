@@ -48,6 +48,10 @@ if(!is_network_admin()) {
 	add_action( 'init', 'set_shared_database_schema', 8, 2 );
 	#
 	add_filter( 'upload_dir', 'shared_upload_dir' );
+	#
+	#do_action('save_post_shop_order', 'revert_database_schema');
+	#do_action('save_post_shop_order_refund', 'revert_database_schema');
+	#do_action('save_post_shop_customize_changeset', 'revert_database_schema');
 }
 
 #PRINCIPAL FUNCTION
@@ -234,8 +238,12 @@ function force_database_aditional_tables_share($query) {
 			#	return;
 		}
 	}
+	#
+	$types_shop_order = array("shop_order", "shop_order_refund", "customize_changeset", "subscriptio_NONO", "subscription_NONO");
+	#$types_not_shared = array_merge(array("projectimer_focus", "projectimer_rest", "projectimer_lost"), $types_shop_order);
+	$types_not_shared = array_merge(array("projectimer_focus", "projectimer_rest", "projectimer_lost")); 
 	
-	$types_not_shared = array("projectimer_focus", "projectimer_rest", "projectimer_lost");
+	#$types_not_shared = array("projectimer_focus", "projectimer_rest", "projectimer_lost", "shop_order");
 
 	$types_not_shared[] = "subscription";
 	#$types_not_shared[] = "shop_order";
@@ -248,13 +256,19 @@ function force_database_aditional_tables_share($query) {
 	
 	#
 	if(isset($query->query["post_type"])) {
+		if($debug_force)
+			echo " PEGADOTIPO1 ";
 		$type = $query->query["post_type"];
+		if(is_array($type))
+			$type =$type[0];
 	} else {
 		#return;
+		if($debug_force)
+			echo " PEGADOTIPO2 ";
+
 		if(isset($_GET['post_type'])) {
 			$type = $_GET['post_type'];
 		} else {
-			
 			if(!$type) {
 				if($debug_force)
 					echo " ENFIADO TIPO ";
@@ -274,7 +288,14 @@ function force_database_aditional_tables_share($query) {
 					#die;
 					#$type="notknow";
 				} else {
-					$type="notknow";#(post or page problably, but maybe menu)	
+					$url = $_SERVER['REQUEST_URI'];
+					#if (strpos($url,'view-subscription') !== false) {
+    				#	$type="subscriptio";#(post or page problably, but maybe menu)
+    					#revert_database_schema();
+    					#return;
+					#} else {
+						$type="notknow";#(post or page problably, but maybe menu)
+					#}
 				}
 				#$type="shop_order";
 			} else {
@@ -283,7 +304,7 @@ function force_database_aditional_tables_share($query) {
 		}
 		#$type="notknow";#(post or page problably, but maybe menu)
 	}
-	$types_shop_order = array("shop_order", "shop_order_refund", "customize_changeset", "subscriptio_NONO", "subscription_NONO");
+	
 	#
 	if($debug_force)
 	echo " type: ";
