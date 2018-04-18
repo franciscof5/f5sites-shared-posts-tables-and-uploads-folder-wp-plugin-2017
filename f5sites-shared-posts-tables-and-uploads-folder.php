@@ -10,9 +10,7 @@
  * License: GPLv3
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
+if ( ! defined( 'ABSPATH' ) ) {exit;}
 
 #global $debug_force; if(gethostname()=="note-samsung")$debug_force = true;#NEVER ENABLE DEBUG IN PRODUCTION SERVER
 
@@ -45,7 +43,7 @@ if(!is_network_admin()) {
 			add_action( 'wp_loaded', 'force_database_aditional_tables_share', 10, 2 );
 	}	
 	#
-	add_action( 'init', 'set_shared_database_schema', 8, 2 );
+	add_action( 'init', 'force_database_aditional_tables_share', 8, 2 );
 	#
 	add_filter( 'upload_dir', 'shared_upload_dir' );
 	#
@@ -86,7 +84,16 @@ function set_shared_database_schema() {
 	if(function_exists("is_woocommerce")) {
 		if($debug_force)
 			echo " is_woocommerce=true ";
-		setWooFilters();
+		if(!is_admin()) {
+			if($debug_force)
+			echo " but not admin, no filtr ";
+			setWooFilters();
+		} else {
+			if($debug_force)
+			echo " is admin ";
+		}
+		
+		#add_action("woocommerce_loaded", "setWooFilters");
 	}
 
 	if(is_array($type) && isset($type[0]))
@@ -152,7 +159,6 @@ function force_woo_type() {
 		#create_separated_woo_table_for_prefix_then_return();
 		#die;	
 	}
-	
 }
 
 function mega_force_woo_type() {
@@ -238,11 +244,11 @@ function force_database_aditional_tables_share($query) {
 			#	return;
 		}
 	}
-	#
+	
 	$types_shop_order = array("shop_order", "shop_order_refund", "customize_changeset", "subscriptio_NONO", "subscription_NONO");
+	
 	#$types_not_shared = array_merge(array("projectimer_focus", "projectimer_rest", "projectimer_lost"), $types_shop_order);
 	$types_not_shared = array_merge(array("projectimer_focus", "projectimer_rest", "projectimer_lost")); 
-	
 	#$types_not_shared = array("projectimer_focus", "projectimer_rest", "projectimer_lost", "shop_order");
 
 	$types_not_shared[] = "subscription";
@@ -320,8 +326,8 @@ function force_database_aditional_tables_share($query) {
 		#$type[0] => em alguns casos vem 2 tipos, mas o primeiro eh shop_order
 		if($debug_force)
 		echo " EH DO TIPO SHOP_ORDER ";
-		force_woo_type();
-		#return;
+		#force_woo_type();
+		return;
 	}
 
 
@@ -366,7 +372,7 @@ function force_database_aditional_tables_share($query) {
 		#NOT-SHARED
 		if($debug_force)
 		echo "$type is not not shared ALRT";
-		
+		if(!in_array($type, $types_shop_order))
 		revert_database_schema();
 
 	}
