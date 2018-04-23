@@ -265,8 +265,11 @@ function force_database_aditional_tables_share($query) {
 		if($debug_force)
 			echo " PEGADOTIPO1 ";
 		$type = $query->query["post_type"];
-		if(is_array($type))
-			$type =$type[0];
+		if(is_array($type)) {
+			if(isset($type[0]))
+			$type=$type[0];	
+		}
+		
 	} else {
 		#return;
 		if($debug_force)
