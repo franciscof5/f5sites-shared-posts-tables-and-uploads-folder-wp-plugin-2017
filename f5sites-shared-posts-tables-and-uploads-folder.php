@@ -303,7 +303,11 @@ function force_database_aditional_tables_share($query) {
     					#revert_database_schema();
     					#return;
 					#} else {
-						$type="notknow";#(post or page problably, but maybe menu)
+						if(function_exists("is_checkout"))#NA PAGINA DE CHECKOU DAVA Internal Server Error
+							if(is_checkout())
+								return
+						#else
+							$type="notknow";#(post or page problably, but maybe menu)
 					#}
 				}
 				#$type="shop_order";
