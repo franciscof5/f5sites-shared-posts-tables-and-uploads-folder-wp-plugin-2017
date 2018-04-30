@@ -47,6 +47,7 @@ if(!is_network_admin()) {
 	#
 	add_filter( 'upload_dir', 'shared_upload_dir' );
 	#
+	add_action( 'woocommerce_checkout_update_order_review', 'force_woo_type');
 	#do_action('save_post_shop_order', 'revert_database_schema');
 	#do_action('save_post_shop_order_refund', 'revert_database_schema');
 	#do_action('save_post_shop_customize_changeset', 'revert_database_schema');
@@ -298,13 +299,17 @@ function force_database_aditional_tables_share($query) {
 					#$type="notknow";
 				} else {
 					$url = $_SERVER['REQUEST_URI'];
+					if($debug_force)
+						echo " WOOCOMMERCE_CHECKOUT:".WOOCOMMERCE_CHECKOUT;
 					#if (strpos($url,'view-subscription') !== false) {
     				#	$type="subscriptio";#(post or page problably, but maybe menu)
     					#revert_database_schema();
     					#return;
 					#} else {
-						if(function_exists("is_checkout"))#NA PAGINA DE CHECKOU DAVA Internal Server Error
-							if(is_checkout())
+						#if(function_exists("is_checkout"))#NA PAGINA DE CHECKOU DAVA Internal Server Error
+							#if(is_checkout())
+							if(defined('WOOCOMMERCE_CHECKOUT'))
+							if(WOOCOMMERCE_CHECKOUT)
 								return
 						#else
 							$type="notknow";#(post or page problably, but maybe menu)
