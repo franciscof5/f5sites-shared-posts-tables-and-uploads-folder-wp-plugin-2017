@@ -747,7 +747,7 @@ function redirect_to_correct_store_in_single_view () {
 
 /* UPLOAD FOLDER */
 function shared_upload_dir( $dirs ) {
-    $dirs['baseurl'] = network_site_url( '/wp-content/uploads/shared-wp-posts-uploads-dir' );
+    $dirs['baseurl'] = site_url( '/wp-content/uploads/shared-wp-posts-uploads-dir' );
     $dirs['basedir'] = ABSPATH . 'wp-content/uploads/shared-wp-posts-uploads-dir';
     $dirs['path'] = $dirs['basedir'] . $dirs['subdir'];
     $dirs['url'] = $dirs['baseurl'] . $dirs['subdir'];
