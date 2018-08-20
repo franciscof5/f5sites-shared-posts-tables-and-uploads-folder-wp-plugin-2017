@@ -757,7 +757,7 @@ function shared_upload_dir( $dirs ) {
 
 /*NAVIGATION LINKS*/
 
-function print_blog_nav_links($post) {
+function print_blog_nav_links($post, $tagfilter="") {
 	?>
 	<div class="navigation">
 			<?php
@@ -766,7 +766,12 @@ function print_blog_nav_links($post) {
 				#$current_cat_id = $cat[0]->cat_ID; // Get current Category ID 
 				$current_cat_id = get_cat_ID($_SERVER["HTTP_HOST"]);
 
-				$args = array('category'=>$current_cat_id,'orderby'=>'post_date','order'=> 'DESC');
+				$args = array(
+					'category'=>$current_cat_id,
+					'orderby'=>'post_date',
+					'order'=> 'DESC',
+					'tag'=>$tagfilter
+					);
 				$posts = get_posts($args);
 				// Get IDs of posts retrieved by get_posts function
 				$ids = array();
