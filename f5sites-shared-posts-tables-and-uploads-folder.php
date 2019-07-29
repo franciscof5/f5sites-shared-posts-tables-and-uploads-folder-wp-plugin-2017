@@ -51,6 +51,12 @@ if(!is_network_admin()) {
 	#do_action('save_post_shop_order', 'revert_database_schema');
 	#do_action('save_post_shop_order_refund', 'revert_database_schema');
 	#do_action('save_post_shop_customize_changeset', 'revert_database_schema');
+	//BUDDPRESS NOOOO NEED
+	#add_action( 'bp_loaded', 'force_database_aditional_tables_share', 10, 2 );	
+	#add_action( 'bp_init', 'force_database_aditional_tables_share', 10, 2 );	
+	#add_action( 'bp_setup_components', 'force_database_aditional_tables_share', 10, 2 );	
+	#add_action( 'bp_setup_theme', 'force_database_aditional_tables_share', 10, 2 );
+	#options bp-pages a:4:{s:7:"members";i:38737;s:8:"activity";i:38739;s:8:"register";i:38745;s:8:"activate";i:38747;}	
 }
 
 #PRINCIPAL FUNCTION
