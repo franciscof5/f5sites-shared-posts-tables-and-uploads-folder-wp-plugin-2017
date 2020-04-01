@@ -2,9 +2,9 @@
 /* 
  * Plugin Name: F5 Sites | Shared Posts Tables & Uploads Folder
  * Plugin URI: https://www.f5sites.com/software/wordpress/f5sites-shared-posts-tables-and-uploads-folder/
- * Description: Hacks WordPress databases, sharing posts and taxonomies tables for multiple wp install under the same database, by default wp only can share tables users and usermeta. Made for use in fnetwor
+ * Description: Hacks WordPress databases, sharing posts and taxonomies tables for multiple wp install under the same database, by default wp only can share tables users and usermeta. Made for use in fnetworl
  * Tags: woocommerce, pdfcatalog, wpmu, buddypress, bp xprofile, projectimer ready
- * Version: 1.0
+ * Version: 1.9
  * Author: Francisco Matelli Matulovic
  * Author URI: https://www.franciscomat.com
  * License: GPLv3
@@ -12,72 +12,61 @@
 
 if ( ! defined( 'ABSPATH' ) ) {exit;}
 
-#global $debug_force; if(gethostname()=="note-samsung")$debug_force = true;#NEVER ENABLE DEBUG IN PRODUCTION SERVER
-
-#require_once("woocommerce-data-store.php");
+#NEVER ENABLE DEBUG IN PRODUCTION SERVER, checked by hostname, if forget to comment line below and send it by mistake to prod
+global $show_debug_log; 
+if(isset($_GET["debug_shared_posts"]) && $_GET["debug_shared_posts"]==true) {
+	if(gethostname()!="mail.f5sites.com") {
+		$show_debug_log = true;
+	}
+}
 
 if(!is_network_admin()) {
-
+	#
 	$current_server_name = $_SERVER['SERVER_NAME'];
-	/*if($current_server_name=="www.focalizador.com.br" || 
-		$current_server_name=="www.projectimer.com" || 
-		$current_server_name=="www.franciscomat.com" || 
-		$current_server_name=="br.franciscomat.com" ||
-		$current_server_name=="pesquisa.f5sites.com")*/
+	#It mess wpmu install (todo: test)
 	show_admin_bar( false );
 	
-	#Disabled for pesquisa child sites
+	#Disabled for pesquisa child sites (todo: test)
 	if($current_server_name=="pesquisa.f5sites.com" && !is_main_site()) {
-		#var_dump(is_main_site());die;
 		return;
-
 	}
 
+	#todo: try to attach to only one hook
 	#PRINCIPAL HOOK
-	add_action( 'pre_get_posts', 'force_database_aditional_tables_share', 10, 2 );//FOR BLOG POSTS #NEEDED IN EVERY BLOG ROOT
+	add_action( 'pre_get_posts', 'force_database_aditional_tables_share', 10, 2 );
 	
 	if(is_admin()) {
-		if(is_multisite())# && is_admin()
-			add_action( 'switch_blog', 'force_database_aditional_tables_share', 10, 2 );#ADMIN-BAR cant be disabled in ADMIN, because of it that action must be enabled
+		if(is_multisite())
+			add_action( 'switch_blog', 'force_database_aditional_tables_share', 10, 2 );
+			#ADMIN-BAR cant be disabled in ADMIN, because of it that action must be enabled (todo: understand comment)
 		else
 			add_action( 'wp_loaded', 'force_database_aditional_tables_share', 10, 2 );
-	}	
+	}
 	#
 	add_action( 'init', 'force_database_aditional_tables_share', 8, 2 );
 	#
 	add_filter( 'upload_dir', 'shared_upload_dir' );
 	#
 	add_action( 'woocommerce_checkout_update_order_review', 'force_woo_type');
-	#do_action('save_post_shop_order', 'revert_database_schema');
-	#do_action('save_post_shop_order_refund', 'revert_database_schema');
-	#do_action('save_post_shop_customize_changeset', 'revert_database_schema');
-	//BUDDPRESS NOOOO NEED
-	#add_action( 'bp_loaded', 'force_database_aditional_tables_share', 10, 2 );	
-	#add_action( 'bp_init', 'force_database_aditional_tables_share', 10, 2 );	
-	#add_action( 'bp_setup_components', 'force_database_aditional_tables_share', 10, 2 );	
-	#add_action( 'bp_setup_theme', 'force_database_aditional_tables_share', 10, 2 );
-	#options bp-pages a:4:{s:7:"members";i:38737;s:8:"activity";i:38739;s:8:"register";i:38745;s:8:"activate";i:38747;}	
 }
 
 #PRINCIPAL FUNCTION
 function set_shared_database_schema() {
-	#var_dump(debug_backtrace());
 	global $wpdb;
-	global $debug_force;
-	global $type;
+	global $show_debug_log;
+	global $post_type_current;
 	global $woo_priority;
-	#or $_SESSION['woo_priority']
 
-	if ($debug_force)
-	echo " set_shared_database_schema(); ";
+	if ($show_debug_log)
+	echo "<strong>set_shared_database_schema();</strong><br>";
 
 	if($woo_priority) {
-		if($debug_force)
-			echo " WOO PEDIU PARA SER PRIORITY (return) ";
+		if($show_debug_log)
+			echo "woo_priority=true <br> (return) ";
 		return;
 	} else {
-		if($debug_force)
-		echo " woo_priority=false ";
+		if($show_debug_log)
+		echo "woo_priority=false <br>";
 	}
 	
 	#
@@ -89,28 +78,24 @@ function set_shared_database_schema() {
 	}
 	
 	if(function_exists("is_woocommerce")) {
-		if($debug_force)
-			echo " is_woocommerce=true ";
-		if(!is_admin()) {
-			if($debug_force)
-			echo " but not admin, no filtr ";
-			setWooFilters();
-		} else {
-			if($debug_force)
-			echo " is admin ";
-		}
+		if($show_debug_log)
+			echo "is_woocommerce exists in this domain: ";
 		
-		#add_action("woocommerce_loaded", "setWooFilters");
+		if(!is_admin()) {
+			if($show_debug_log)
+			echo " but url is not wp-admin, filters needed <br>";
+			activate_woocommerce_hooks();
+		} else {
+			if($show_debug_log)
+			echo " is admin, not filters used <br>";
+		}
 	}
 
-	if(is_array($type) && isset($type[0]))
-		$type = $type[0];
+	###if(is_array($post_type_current) && isset($post_type_current[0]))
+	###	$post_type_current = $post_type_current[0];
 	
-	if($debug_force)
-	echo " ULTIMO CHECK TYPE: ".$type;
-	
-	if($debug_force)
-	echo " TABELA ".$config["posts"];
+	if($show_debug_log)
+		echo "loading config: wp posts table ".$config["posts"]."<br>";
 	
 	$wpdb->posts 				= $config["posts"];
 	$wpdb->postmeta 			= $config["postmeta"];	
@@ -129,15 +114,15 @@ function set_shared_database_schema() {
 
 function force_woo_type() {	
 	global $wpdb;
-	global $debug_force;
+	global $show_debug_log;
 	
-	if($debug_force)
+	if($show_debug_log)
 		echo " force_woo_type();, ";
 	
 	$table_woo_posts	= "6woo_".$wpdb->prefix."shop_order_posts";
 	$table_woo_postmeta = "6woo_".$wpdb->prefix."shop_order_postmeta";
 
-	if($debug_force)
+	if($show_debug_log)
 		echo " force_woo_type(); TABELA $table_woo_posts e $table_woo_postmeta";
 
 	$exists_table_woo_posts = $wpdb->get_var("SHOW TABLES LIKE '$table_woo_posts'");
@@ -149,12 +134,12 @@ function force_woo_type() {
 	#$wpdb->postmeta 	= "9woo_pomodoros_shop_order_postmeta";#FUNFA
 	
 	if(($exists_table_woo_posts!=$table_woo_posts) || ($exists_table_woo_postmeta!=$table_woo_postmeta)) {
-		if($debug_force)
+		if($show_debug_log)
 		echo " separated tables woo not found, creating then ";
 		create_separated_woo_table_for_prefix_then_return();
 		#die;
 	} else {
-		if($debug_force)
+		if($show_debug_log)
 		echo " woo tables found, proceed with change ";
 
 		$wpdb->posts 		= $table_woo_posts;
@@ -170,11 +155,11 @@ function force_woo_type() {
 
 function mega_force_woo_type() {
 	global $wpdb;
-	global $debug_force;
+	global $show_debug_log;
 	global $woo_priority;
 	$_SESSION['woo_priority']=true;
 	$woo_priority=true;
-	if($debug_force)
+	if($show_debug_log)
 		echo " mega_force_woo_type(); ";
 	force_woo_type(); 
 	#2018-03-18
@@ -182,59 +167,97 @@ function mega_force_woo_type() {
 	#$wpdb->postmeta 			= "9fnetwork_woo_shop_order_postmeta";
 }
 
-function setWooFilters() {
-	global $debug_force;
-	if($debug_force)
-		echo " setWooFilters(); ";
+function activate_woocommerce_hooks() {
+	global $show_debug_log;
+	if($show_debug_log)
+		echo "<strong>activate_woocommerce_hooks();</strong><br>";
 	#
-	#if(function_exists("is_woocommerce")) {
-		add_action( 'woocommerce_before_shop_loop_item', 'redirect_to_correct_store_in_shop_loop_title' );
-		add_filter( 'woocommerce_loop_add_to_cart_link', 'redirect_to_correct_store_in_shop_loop_cart', 10, 2 ); 
-		#
-		add_action( 'woocommerce_before_main_content', 'redirect_to_correct_store_in_single_view', 10, 2);
-	#}
+	add_action( 'woocommerce_before_shop_loop_item', 'redirect_to_correct_store_in_shop_loop_title' );
+	add_filter( 'woocommerce_loop_add_to_cart_link', 'redirect_to_correct_store_in_shop_loop_cart', 10, 2 ); 
+	add_action( 'woocommerce_before_main_content', 'redirect_to_correct_store_in_single_view', 10, 2);
 }
 
 function force_database_aditional_tables_share($query) {
-	global $debug_force;
+	global $show_debug_log;
 	global $wpdb;
 	global $wp_the_query;
-	global $type;
+	global $post_type_current;
 	global $last_type;
 	global $please_dont_change_wpdb_woo_separated_tables;
 	global $reverter_filtro_de_categoria_pra_forcar_funcionamento;
+	global $force_publish_post_not_shared;
 	#
-	if($debug_force)
-		echo " force_database_aditional_tables_share(); ";
-	
+
+
+	if($show_debug_log) {
+		echo "<strong>force_database_aditional_tables_share(query)</strong>; <br>";
+		var_dump($query);
+		echo "<br>";
+	}
+
+	if($query==NULL || $query=="") {
+		if($show_debug_log)
+			echo "query empty, return";
+		#return; #2020 dont work in woocommerce
+	}
 	if($please_dont_change_wpdb_woo_separated_tables) {
 		#NECESSARIO
-		if($debug_force)
+		if($show_debug_log)
 		echo " estavas prestes a refazer o schema, mas atendo ao pedido de retornar please_dont_change_wpdb_woo_separated_tables: $please_dont_change_wpdb_woo_separated_tables ";
 		#die;
 		if($reverter_filtro_de_categoria_pra_forcar_funcionamento) {
 			#revert_database_schema();
-			if($debug_force)
+			if($show_debug_log)
 			echo " cancelando pedido, outra funcao exigiu nao usar posts compartilhados, por ex pomodoros_posts ";
 		}
 		else
 			return;
 	}
 	
+	if(!is_object($query)) {
+		$query = $wp_the_query;
+		if($show_debug_log)
+			echo " query is not object, then user wp_the_query <br>";
+	}
+
+	/*if($query=="") {
+		if($show_debug_log)
+			echo " query is empty ";
+		
+		if($wp_the_query!=NULL) {
+			if($show_debug_log)
+			echo " wp_the_query NOT null ";
+			$query = $wp_the_query;
+		} else if($query!=NULL) {
+			if($show_debug_log)
+				echo " query NOT null ";
+			$query = $query;
+		} else {
+			return;
+		}
+	} else {
+		if($show_debug_log)
+			echo " query=queryReceived no null ";
+		$query = $queryReceived;
+		#var_dump($query->query['post_type']);die;
+	}*/
+	#if($wp_the_query!=NULL)
+
+	/*
 	if(!isset($query)) {
-		if($debug_force)
+		if($show_debug_log)
 		echo "NAOVEIO QUERY";
 		if($wp_the_query!=NULL) {
 			#echo "SETOU A GLOBAL";
 			$query = $wp_the_query;
 		}
 	} else {
-		if($debug_force)
+		if($show_debug_log)
 		echo "VEVEIO QUERY";
 
 		if(is_object($query)) {
 			#var_dump($query);
-			if($debug_force)
+			if($show_debug_log)
 			echo "VEIO UM OBJETO (query)";
 			#if($wp_the_query!=NULL) {
 			#	echo "SETOU A GLOBAL";
@@ -242,7 +265,7 @@ function force_database_aditional_tables_share($query) {
 			#}
 		} else {
 			#var_dump($query);
-			if($debug_force)
+			if($show_debug_log)
 			echo "SETOU A GLOBAL PORQUE VEIO VAZIO";
 			$query = $wp_the_query;
 			#var_dump($query);
@@ -250,189 +273,121 @@ function force_database_aditional_tables_share($query) {
 			#if($query==NULL)
 			#	return;
 		}
-	}
+	}*/
 	
-	$types_shop_order = array("shop_order", "shop_order_refund", "customize_changeset", "subscriptio_NONO", "subscription_NONO");
-	
-	#$types_not_shared = array_merge(array("projectimer_focus", "projectimer_rest", "projectimer_lost"), $types_shop_order);
-	$types_not_shared = array_merge(array("projectimer_focus", "projectimer_rest", "projectimer_lost")); 
-	#$types_not_shared = array("projectimer_focus", "projectimer_rest", "projectimer_lost", "shop_order");
+	#
+	$post_types_ignored = array("shop_order", "shop_order_refund", "customize_changeset");
+	#
+	$post_types_not_shared = array("projectimer_focus", "projectimer_rest", "projectimer_lost", "subscription"); 
+	#
+	$post_types_dont_need_cat_filter = array("page", "nav_menu_item", "attachment", "achievement");
+	#
+	$post_types_dont_need_cat_filter = array_merge($post_types_dont_need_cat_filter, $post_types_ignored);
 
-	$types_not_shared[] = "subscription";
-	#$types_not_shared[] = "shop_order";
-	global $force_publish_post_not_shared;
+	#todo: check it pomodoros
 	if($force_publish_post_not_shared) {
 		#post NAO sera compartilhado, vai pro bd especifico (prov pomodoros_)
 		#situacao tipica: inserindo novo post por wp_insert_post
-		$types_not_shared[] = "any";
+		$post_types_not_shared[] = "any";
 	}
 	
-	#
+	$post_type_current="notknow";
 	if(isset($query->query["post_type"])) {
-		if($debug_force)
-			echo " PEGADOTIPO1 ";
-		$type = $query->query["post_type"];
-		if(is_array($type)) {
-			if(isset($type[0]))
-			$type=$type[0];	
+		$post_type_current = $query->query["post_type"];
+		if(is_array($post_type_current) && isset($post_type_current[0])) {
+			$post_type_current=$post_type_current[0];	
 		}
-		
+		if($show_debug_log)
+			echo "current post_type is defined in query <br>";
 	} else {
-		#return;
-		if($debug_force)
-			echo " PEGADOTIPO2 ";
+		if($show_debug_log)
+			echo " current post_type is not on query";
 
 		if(isset($_GET['post_type'])) {
-			$type = $_GET['post_type'];
+			$post_type_current = $_GET['post_type'];
 		} else {
-			if(!$type) {
-				if($debug_force)
-					echo " ENFIADO TIPO ";
-				#if(is_woocommerce())
-				$d = ($_SERVER['REQUEST_URI']);
-				$ds = explode("/", $d);
-				#var_dump($ds);die;
-				if(in_array("order-received", $ds) || $ds[1]=="ver-pedido") {
-					#WC()->order_factory
-					#force_woo_type();
-					#return;
-					#$type = 'product';
-					#$type="shop_order_refund";
-					#var_dump($order);
-					#global $order;
-					#var_dump($order);
-					#die;
-					#$type="notknow";
-				} else {
-					$url = $_SERVER['REQUEST_URI'];
-					if($debug_force)
-						echo " WOOCOMMERCE_CHECKOUT:".WOOCOMMERCE_CHECKOUT;
-					#if (strpos($url,'view-subscription') !== false) {
-    				#	$type="subscriptio";#(post or page problably, but maybe menu)
-    					#revert_database_schema();
-    					#return;
-					#} else {
-						#if(function_exists("is_checkout"))#NA PAGINA DE CHECKOU DAVA Internal Server Error
-							#if(is_checkout())
-							if(defined('WOOCOMMERCE_CHECKOUT'))
-							if(WOOCOMMERCE_CHECKOUT)
-								return
-						#else
-							$type="notknow";#(post or page problably, but maybe menu)
-					#}
+			if($show_debug_log)
+				echo ", try to get it from url <br>";
+
+			$d = ($_SERVER['REQUEST_URI']);
+			$ds = explode("/", $d);
+			//
+			if(!in_array("order-received", $ds) || !$ds[1]=="ver-pedido") {
+				if(defined('WOOCOMMERCE_CHECKOUT')) {
+					if(WOOCOMMERCE_CHECKOUT) {
+						return;
+					}
 				}
-				#$type="shop_order";
-			} else {
-				#echo "GLOBAL TYPE ".$type;
 			}
 		}
-		#$type="notknow";#(post or page problably, but maybe menu)
 	}
+
+	if($show_debug_log)
+		echo "post_type_current: <strong> $post_type_current </strong> <br>";
 	
-	#
-	if($debug_force)
-	echo " type: ";
-	if($debug_force)
-	var_dump($type);
-	if($debug_force)
-	echo ", in array types not shared: ".(in_array($type, $types_not_shared) ? "NOT-SHARED" : "YES-SHARED").", last_type: ".$last_type . " | ";
-	#
-	if(!isset($type[0]))
-		$type[0]='';
-	#
-	if(in_array($type, $types_shop_order) || in_array($type[0], $types_shop_order)) {
-		#$type[0] => em alguns casos vem 2 tipos, mas o primeiro eh shop_order
-		if($debug_force)
-		echo " EH DO TIPO SHOP_ORDER ";
+	#if($show_debug_log) {
+
+	#}
+	#echo ", in array types not shared: ".(in_array($post_type_current, $post_types_not_shared) ? "NOT-SHARED" : "YES-SHARED").", last_type: ".$last_type . " | ";
+	
+	###if(!isset($post_type_current[0]))
+	###	$post_type_current[0]='';
+	
+	#if(in_array($post_type_current, $post_types_ignored) || in_array($post_type_current[0], $post_types_ignored)) {
+	if(in_array($post_type_current, $post_types_ignored)) {
+		if($show_debug_log)
+			echo "$post_type is ignored. <hr> return <hr>";
 		#force_woo_type();
 		return;
 	}
 
 
-	if(!in_array($type, $types_not_shared)) {
-		#YES-SHARED
-		if($debug_force)
-		var_dump("is shared");
-		if(isset($_GET['action'])) {
-			if($_GET['action']=="woocommerce_mark_order_status") {
-				if($debug_force)
+	if(!in_array($post_type_current, $post_types_not_shared)) {
+		#type shared
+		if($show_debug_log)
+			echo "post_type: $post_type_current is shared (is not not shared) <br>";
+
+
+		if(isset($_GET['action']) && $_GET['action']=="woocommerce_mark_order_status") {
+			if($show_debug_log)
 				echo " completando uma ordem, precisa retornar ";
-				return;
-			} else {
-				if($debug_force)
-				echo " segue ";
-				set_shared_database_schema();#AQUI NAO PODE SETAR QUANDO VAI COMPLETAR O PRODUTO
-			}
+			return;
 		} else {
-			if($debug_force)
-			echo " segue ";
 			set_shared_database_schema();#AQUI NAO PODE SETAR QUANDO VAI COMPLETAR O PRODUTO
 		}
-		#
-		$types_dont_need_cat_filter = array("page", "nav_menu_item", "notknow_REMOVED", "attachment", "achievement");
-		$types_dont_need_cat_filter = array_merge($types_dont_need_cat_filter, $types_shop_order);
-
-		#if($type!="page" and $type!="nav_menu_item" and (!in_array($type, $types_shop_order))) {
-		if(!in_array($type, $types_dont_need_cat_filter)) {
-			if($debug_force)
-			echo " APLICANDO FILTRO DE CATEGORIA ".(!in_array($type, $types_shop_order));
-			if($debug_force)
-			echo "$type precisa de filtro de categoria";
-
-			#if(!function_exists("is_woocommerce")) {
-				if($debug_force)
-				echo " naoehwoo, aplica filtro ";
-				filter_posts_by_cat($query);
-			#}
-			
+		
+		if(!in_array($post_type_current, $post_types_dont_need_cat_filter)) {
+			if($show_debug_log)
+				echo "$post_type_current precisa de filtro de categoria. Apllying category filter <br>";
+			filter_posts_by_category_domain_attributed_to_post($query);			
 		}
 	} else {
-		#NOT-SHARED
-		if($debug_force)
-		echo "$type is not not shared ALRT";
-		if(!in_array($type, $types_shop_order))
+		#type not shared
+		if($show_debug_log)
+			echo "post_type: $post_type_current is not not shared ALRT";
+		
+		if(!in_array($post_type_current, $post_types_ignored))
 		revert_database_schema();
 
 	}
 
-	$last_type=$type;
-	if($debug_force)
-		echo "......................................................................................";
+	$last_type=$post_type_current;
+	if($show_debug_log)
+		echo "<br>end<hr>";
 }
 
-function filter_posts_by_cat($queryReceived) {
-	global $debug_force;
-	if($debug_force)
-		echo " filter_posts_by_cat();, ";
+function filter_posts_by_category_domain_attributed_to_post($queryReceived) {
+	global $show_debug_log;
 	global $wp_the_query;
 	global $query;
+	#
+	if($show_debug_log)
+		echo "<strong>filter_posts_by_category_domain_attributed_to_post();</strong><br>";
 	
-	#var_dump($wp_the_query);
-	//if($wp_the_query!=NULL)
-	//	$query = $wp_the_query;
-	//else
-	//	return;
-	//$query = $wp_the_query;
-
-	if($queryReceived==NULL) {
-		if($debug_force)
-		echo " queryReceived null ";
-		if($wp_the_query!=NULL) {
-			if($debug_force)
-			echo " wp_the_query NOT null ";
-			$query = $wp_the_query;
-		} else if($query!=NULL) {
-			if($debug_force)
-				echo " query NOT null ";
-			$query = $query;
-		} else {
-			return;
-		}
-	} else {
-		if($debug_force)
-			echo " query=queryReceived no null ";
-		$query = $queryReceived;
-		#var_dump($query->query['post_type']);die;
+	if($query==NULL) {
+		if($show_debug_log)
+			echo "query is null, return";
+		return;
 	}
 
 	$current_server_name = $_SERVER['SERVER_NAME'];
@@ -443,9 +398,9 @@ function filter_posts_by_cat($queryReceived) {
 	else
 		return;
 
-	$type="notknow";#(post or page problably)	
-	if(isset($query->query["post_type"])) 
-		$type = $query->query["post_type"];
+	###$post_type_current="notknow";#(post or page problably)	
+	###if(isset($query->query["post_type"])) 
+	###	$post_type_current = $query->query["post_type"];
 		
 	$is_category = "";
 	if(isset($query->query["is_category"]))
@@ -463,50 +418,36 @@ function filter_posts_by_cat($queryReceived) {
 	if(isset($query->is_search))
 		$is_search = $query->is_search;
 	
-	if($is_search) {
+	if($is_search || is_tax() || isset($query->query["is_post_type_archive"])) {
 		return;
-		#$reverter_filtro_de_categoria_pra_forcar_funcionamento=true;
-	}
-	if(is_tax()) {
-		return;
-		#product_brand
 	}
 
-	if(isset($query->query["is_post_type_archive"]))
-		return;
-
-
-	if($debug_force)
-	var_dump("<br /> type: " . ", <br /> is_shop: ".is_shop(). ", <br /> domain: ".$current_server_name. ", <br /> is_woocommerce(): ".is_woocommerce(). ", <br /> pdfcat X: ". ", <br /> gettype: ".gettype($query).", <br /> current_server_name_shared_category_id:".$current_server_name_shared_category_id.", <br /> category:".$category.", <br /> is_category:".$is_category.", <br /> typequery:".gettype($query)." <br />product_tag:".$product_tag.", <br />is_tag:".is_tag().", is_search: ".$is_search.", is_tax:".is_tax());
+	if($show_debug_log)
+	var_dump("is_shop: ".is_shop(). ", <br /> domain: ".$current_server_name. ", <br /> pdfcat X: ". ", <br /> gettype: ".gettype($query).", <br /> current_server_name_shared_category_id:".$current_server_name_shared_category_id.", <br /> category:".$category.", <br /> is_category:".$is_category.", <br /> typequery:".gettype($query)." <br />product_tag:".$product_tag.", <br />is_tag:".is_tag().", is_search: ".$is_search.", is_tax:".is_tax());
 			
 			
 	if($category=="") {
 		if(!is_admin()) {
 			##IS FRONT-END
-			#var_dump("product_tag: $product_tag");
-			#var_dump($query);
-
 			if($product_tag!="") {
-				if($debug_force)
-				echo ". Setou a tag: $product_tag";
+				if($show_debug_log)
+				echo "product_tag: $product_tag <br>";
 				$query->set( 'product_tag', $product_tag );
 			} else {
-				if($debug_force)
-				echo ". Setou a categoria id: $current_server_name_shared_category_id";
+				if($show_debug_log)
+				echo "not product_tag, current_server_name_shared_category_id: $current_server_name_shared_category_id<br>";
 				
 				global $reverter_filtro_de_categoria_pra_forcar_funcionamento;
-				#echo " [reverter_filtro_de_categoria_pra_forcar_funcionamento=$reverter_filtro_de_categoria_pra_forcar_funcionamento]";
 
 				if(!$reverter_filtro_de_categoria_pra_forcar_funcionamento) {
-					if($debug_force)
-					echo " CATEGORIA FILTRADA";
+					if($show_debug_log)
+						echo "CATEGORY SETTED<br>";
 					$query->set( 'cat', $current_server_name_shared_category_id );	
 				} else {
 					#echo "Devido ao cancelamento do filtro de categoria, todas as categorias serao exibidas";
 				}
 			}
 		}
-	} else {
 	}
 }
 
@@ -560,8 +501,8 @@ function buddypress_tables_share() {
 
 function revert_database_schema() {
 	#
-	global $debug_force;
-	if($debug_force)
+	global $show_debug_log;
+	if($show_debug_log)
 		echo " revert_database_schema();, ";
 	global $wpdb;
 	#in wp-config and wp-settings.php
@@ -594,8 +535,8 @@ function revert_database_schema() {
 }
 
 function create_separated_woo_table_for_prefix_then_return() {
-	global $debug_force;
-	if($debug_force)
+	global $show_debug_log;
+	if($show_debug_log)
 	echo " create_separated_woo_table_for_prefix_then_return(); ";
 	#return;
 	global $wpdb;
@@ -661,7 +602,7 @@ function create_separated_woo_table_for_prefix_then_return() {
   		  MODIFY `meta_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;';
   	#$sql_settings..$sql_post_meta
   	#$final_sql = $sql_posts;
-  	#if($debug_force)
+  	#if($show_debug_log)
   	#var_dump($final_sql);
   	require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
   	$sql1ok = dbDelta( $sql_posts );
