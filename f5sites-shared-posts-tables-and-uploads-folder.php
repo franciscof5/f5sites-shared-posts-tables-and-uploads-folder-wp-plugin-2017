@@ -33,16 +33,21 @@ if(!is_network_admin()) {
 
 	#todo: try to attach to only one hook
 	#PRINCIPAL HOOK
+	if($current_server_name!="www.pomodoros.com.br")
 	add_action( 'pre_get_posts', 'force_database_aditional_tables_share', 10, 2 );
 	
 	if(is_admin()) {
-		if(is_multisite())
-			add_action( 'switch_blog', 'force_database_aditional_tables_share', 10, 2 );
-			#ADMIN-BAR cant be disabled in ADMIN, because of it that action must be enabled (todo: understand comment)
-		else
-			add_action( 'wp_loaded', 'force_database_aditional_tables_share', 10, 2 );
+		if($current_server_name!="www.pomodoros.com.br") {
+
+			if(is_multisite())
+				add_action( 'switch_blog', 'force_database_aditional_tables_share', 10, 2 );
+				#ADMIN-BAR cant be disabled in ADMIN, because of it that action must be enabled (todo: understand comment)
+			else
+				add_action( 'wp_loaded', 'force_database_aditional_tables_share', 10, 2 );
+		}
 	}
 	#
+	if($current_server_name!="www.pomodoros.com.br")
 	add_action( 'init', 'force_database_aditional_tables_share', 8, 2 );
 	#
 	add_filter( 'upload_dir', 'shared_upload_dir' );
@@ -366,8 +371,10 @@ function force_database_aditional_tables_share($query) {
 		if($show_debug_log)
 			echo "post_type: $post_type_current is not not shared ALRT";
 		
-		if(!in_array($post_type_current, $post_types_ignored))
-		revert_database_schema();
+		if(!in_array($post_type_current, $post_types_ignored)) {
+			#return;
+			revert_database_schema();
+		}
 
 	}
 
