@@ -114,7 +114,6 @@ function set_shared_database_schema() {
 	$wpdb->commentmeta 			= $config["commentmeta"];
 	#
 	$wpdb->links 				= $config["links"];
-	
 }
 
 function force_woo_type() {	
@@ -192,19 +191,13 @@ function force_database_aditional_tables_share($query) {
 	global $reverter_filtro_de_categoria_pra_forcar_funcionamento;
 	global $force_publish_post_not_shared;
 	#
-
-
 	if($show_debug_log) {
 		echo "<strong>force_database_aditional_tables_share(query)</strong>; <br>";
-		var_dump($query);
-		echo "<br>";
+		#var_dump($query);
+		#echo "<br>";
 	}
 
-	if($query==NULL || $query=="") {
-		if($show_debug_log)
-			echo "query empty, return";
-		#return; #2020 dont work in woocommerce
-	}
+	
 	if($please_dont_change_wpdb_woo_separated_tables) {
 		#NECESSARIO
 		if($show_debug_log)
@@ -219,10 +212,21 @@ function force_database_aditional_tables_share($query) {
 			return;
 	}
 	
-	if(!is_object($query)) {
-		$query = $wp_the_query;
+	if($query==NULL || $query=="") {
 		if($show_debug_log)
-			echo " query is not object, then user wp_the_query <br>";
+			echo "query empty, return";
+		#return; #2020 dont work in woocommerce
+	}
+	if(!is_object($query)) {
+		if($show_debug_log)
+			echo " query is not object";
+		if(isset($wp_the_query)) {
+			if($show_debug_log)
+				echo ", then user wp_the_query <br>";
+			$query = $wp_the_query;
+
+		}
+		#var_dump($wp_the_query);die;
 	}
 
 	/*if($query=="") {
@@ -248,8 +252,8 @@ function force_database_aditional_tables_share($query) {
 	}*/
 	#if($wp_the_query!=NULL)
 
-	/*
-	if(!isset($query)) {
+	
+	/*if(!isset($query)) {
 		if($show_debug_log)
 		echo "NAOVEIO QUERY";
 		if($wp_the_query!=NULL) {
@@ -350,7 +354,7 @@ function force_database_aditional_tables_share($query) {
 	if(!in_array($post_type_current, $post_types_not_shared)) {
 		#type shared
 		if($show_debug_log)
-			echo "post_type: $post_type_current is shared (is not not shared) <br>";
+			echo "post_type: $post_type_current is shared <br>";
 
 
 		if(isset($_GET['action']) && $_GET['action']=="woocommerce_mark_order_status") {
@@ -391,11 +395,21 @@ function filter_posts_by_category_domain_attributed_to_post($queryReceived) {
 	if($show_debug_log)
 		echo "<strong>filter_posts_by_category_domain_attributed_to_post();</strong><br>";
 	
-	if($query==NULL) {
+	/*if($query==NULL) {
 		if($show_debug_log)
-			echo "query is null, return";
-		return;
-	}
+			echo "query is null, try other ";
+		if($queryReceived==NULL) {
+			if($show_debug_log)
+				echo "queryReceived is null, return";
+			return;
+		} else {
+			if($show_debug_log)
+				echo "queryReceived is used ";
+			$query = $queryReceived;
+		}
+	}*/
+	
+	$query = $queryReceived;
 
 	$current_server_name = $_SERVER['SERVER_NAME'];
 	$current_server_name_shared_category = get_category_by_slug($current_server_name);
@@ -430,7 +444,7 @@ function filter_posts_by_category_domain_attributed_to_post($queryReceived) {
 	}
 
 	if($show_debug_log)
-	var_dump("is_shop: ".is_shop(). ", <br /> domain: ".$current_server_name. ", <br /> pdfcat X: ". ", <br /> gettype: ".gettype($query).", <br /> current_server_name_shared_category_id:".$current_server_name_shared_category_id.", <br /> category:".$category.", <br /> is_category:".$is_category.", <br /> typequery:".gettype($query)." <br />product_tag:".$product_tag.", <br />is_tag:".is_tag().", is_search: ".$is_search.", is_tax:".is_tax());
+	echo ("is_shop: ".is_shop(). ", <br /> domain: ".$current_server_name. ", <br /> pdfcat X: ". ", <br /> gettype: ".gettype($query).", <br /> current_server_name_shared_category_id:".$current_server_name_shared_category_id.", <br /> category:".$category.", <br /> is_category:".$is_category.", <br /> typequery:".gettype($query)." <br />product_tag:".$product_tag.", <br />is_tag:".is_tag().",  <br /> is_search: ".$is_search.",  <br />is_tax:".is_tax());
 			
 			
 	if($category=="") {
@@ -438,11 +452,11 @@ function filter_posts_by_category_domain_attributed_to_post($queryReceived) {
 			##IS FRONT-END
 			if($product_tag!="") {
 				if($show_debug_log)
-				echo "product_tag: $product_tag <br>";
+				echo " <br />product_tag: $product_tag <br>";
 				$query->set( 'product_tag', $product_tag );
 			} else {
 				if($show_debug_log)
-				echo "not product_tag, current_server_name_shared_category_id: $current_server_name_shared_category_id<br>";
+				echo " <br />not product_tag,<br>";
 				
 				global $reverter_filtro_de_categoria_pra_forcar_funcionamento;
 
