@@ -13,11 +13,11 @@
 if ( ! defined( 'ABSPATH' ) ) {exit;}
 
 #NEVER ENABLE DEBUG IN PRODUCTION SERVER, checked by hostname, if forget to comment line below and send it by mistake to prod
-global $show_debug_log; 
+#global $show_debug_log; 
 if(isset($_GET["debug_shared_posts"]) && $_GET["debug_shared_posts"]==true) {
-	if(gethostname()!="mail.f5sites.com") {
+	#if(gethostname()!="mail.f5sites.com") {
 		$show_debug_log = true;
-	}
+	#:}
 }
 
 if(!is_network_admin()) {
@@ -53,6 +53,9 @@ if(!is_network_admin()) {
 	add_filter( 'upload_dir', 'shared_upload_dir' );
 	#
 	add_action( 'woocommerce_checkout_update_order_review', 'force_woo_type');
+	#add_action( 'woocommerce_before_shop_loop', 'force_woo_type');
+	#add_action( 'woocommerce_after_shop_loop_item', 'force_woo_type' );
+	#2020 shop not show products
 }
 
 #PRINCIPAL FUNCTION
@@ -414,6 +417,10 @@ function filter_posts_by_category_domain_attributed_to_post($queryReceived) {
 	$current_server_name = $_SERVER['SERVER_NAME'];
 	$current_server_name_shared_category = get_category_by_slug($current_server_name);
 
+	#var_dump($current_server_name_shared_category);
+	#var_dump($current_server_name_shared_category->term_id);
+	#die;
+
 	if(isset($current_server_name_shared_category->term_id))
 		$current_server_name_shared_category_id = $current_server_name_shared_category->term_id;
 	else
@@ -465,7 +472,8 @@ function filter_posts_by_category_domain_attributed_to_post($queryReceived) {
 						echo "CATEGORY SETTED<br>";
 					$query->set( 'cat', $current_server_name_shared_category_id );	
 				} else {
-					#echo "Devido ao cancelamento do filtro de categoria, todas as categorias serao exibidas";
+					if($show_debug_log)
+					echo "Devido ao cancelamento do filtro de categoria, todas as categorias serao exibidas";
 				}
 			}
 		}
